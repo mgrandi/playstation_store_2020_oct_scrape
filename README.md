@@ -1,0 +1,3 @@
+# playstation_store_2020_oct_scrape
+
+TODO
