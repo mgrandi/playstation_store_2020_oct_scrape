@@ -44,6 +44,52 @@ def isValidNewFileLocation(filePath):
 
     return path_resolved
 
+
+def isFileType(strict=True):
+    def _isFileType(filePath):
+        ''' see if the file path given to us by argparse is a file
+        @param filePath - the filepath we get from argparse
+        @return the filepath as a pathlib.Path() if it is a file, else we raise a ArgumentTypeError'''
+
+        path_maybe = pathlib.Path(filePath)
+        path_resolved = None
+
+        # try and resolve the path
+        try:
+            path_resolved = path_maybe.resolve(strict=strict).expanduser()
+
+        except Exception as e:
+            raise argparse.ArgumentTypeError("Failed to parse `{}` as a path: `{}`".format(filePath, e))
+
+        # double check to see if its a file
+        if strict:
+            if not path_resolved.is_file():
+                raise argparse.ArgumentTypeError("The path `{}` is not a file!".format(path_resolved))
+
+        return path_resolved
+    return _isFileType
+
+def isDirectoryType(filePath):
+    ''' see if the file path given to us by argparse is a directory
+    @param filePath - the filepath we get from argparse
+    @return the filepath as a pathlib.Path() if it is a directory, else we raise a ArgumentTypeError'''
+
+    path_maybe = pathlib.Path(filePath)
+    path_resolved = None
+
+    # try and resolve the path
+    try:
+        path_resolved = path_maybe.resolve(strict=True).expanduser()
+
+    except Exception as e:
+        raise argparse.ArgumentTypeError("Failed to parse `{}` as a path: `{}`".format(filePath, e))
+
+    # double check to see if its a file
+    if not path_resolved.is_dir():
+        raise argparse.ArgumentTypeError("The path `{}` is not a file!".format(path_resolved))
+
+    return path_resolved
+
 if __name__ == "__main__":
     # if we are being run as a real program
 
@@ -51,33 +97,49 @@ if __name__ == "__main__":
         description="scrape the playstation games site",
         epilog="Copyright 2020-10-24 - Mark Grandi")
 
-    # set up logging stuff
-    logging.captureWarnings(True) # capture warnings with the logging infrastructure
-    root_logger = logging.getLogger()
-    logging_formatter = ArrowLoggingFormatter("%(asctime)s %(threadName)-10s %(name)-20s %(levelname)-8s: %(message)s")
-    logging_handler = logging.StreamHandler(sys.stdout)
-    logging_handler.setFormatter(logging_formatter)
-    root_logger.addHandler(logging_handler)
-
+    parser.add_argument("--log-to-file-path", dest="log_to_file_path", type=isFileType(False), help="log to the specified file")
     parser.add_argument("--verbose", action="store_true", help="Increase logging verbosity")
 
 
     subparsers = parser.add_subparsers(help="sub-command help" )
 
     scrape_urls_parser = subparsers.add_parser("scrape_urls", help="Scrape URLs to JSON")
-
-    scrape_urls_parser.add_argument('--outfile', type=argparse.FileType('w'), default=sys.stdout, help="where to save the JSON file containing the URLs")
-
+    scrape_urls_parser.add_argument('--outfile', dest="outfile", required=True, type=isValidNewFileLocation, help="where to save the JSON file containing the URLs")
     scrape_urls_parser.set_defaults(func_to_run=scrape.get_games_list)
+
+
+    wpull_parser = subparsers.add_parser("wpull_urls", help="download URLs with wpull")
+    wpull_parser.add_argument("--url-list", dest="url_list", required=True, type=isFileType(), help="the list of urls to download")
+    wpull_parser.add_argument("--wpull-binary", dest="wpull_binary", required=True, type=isFileType(), help="the path to wpull")
+    wpull_parser.add_argument("--warc-output-folder", dest="warc_output_folder", required=True, type=isDirectoryType, help="where to store the resulting WARCs")
+    wpull_parser.set_defaults(func_to_run=scrape.wpull_games_list)
+
+
 
     try:
         parsed_args = parser.parse_args()
+
+        # set up logging stuff
+        logging.captureWarnings(True) # capture warnings with the logging infrastructure
+        root_logger = logging.getLogger()
+        logging_formatter = ArrowLoggingFormatter("%(asctime)s %(threadName)-10s %(name)-20s %(levelname)-8s: %(message)s")
+        logging_handler = logging.StreamHandler(sys.stdout)
+        logging_handler.setFormatter(logging_formatter)
+        root_logger.addHandler(logging_handler)
+
+        if parsed_args.log_to_file_path:
+
+            file_handler = logging.FileHandler(parsed_args.log_to_file_path, encoding="utf-8")
+            file_handler.setFormatter(logging_formatter)
+            root_logger.addHandler(file_handler)
 
         # set logging level based on arguments
         if parsed_args.verbose:
             root_logger.setLevel("DEBUG")
         else:
             root_logger.setLevel("INFO")
+
+
 
         root_logger.debug("Parsed arguments: %s", parsed_args)
         root_logger.debug("Logger hierarchy:\n%s", logging_tree.format.build_description(node=None))
