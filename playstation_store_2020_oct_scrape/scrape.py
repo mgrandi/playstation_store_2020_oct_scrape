@@ -163,7 +163,7 @@ def get_games_list(parsed_args):
 
         current_url = URL_FORMAT_TEMPLATE.format(page_counter)
 
-        logger.info("on url page `%s`", page_counter)
+        logger.info("on url page index `%s`", page_counter)
         res = session.get(current_url, params=GET_PARAMS)
 
         if res.status_code != 200:
@@ -172,20 +172,36 @@ def get_games_list(parsed_args):
 
         soup = BeautifulSoup(res.text, 'html.parser')
 
+        # get current page number from webpage instead of guessing
+        # we don't have a index yet so just pass in -1
+        page_number_a_tag = get_tag_by_class_or_raise(soup, "a", "paginator-control__page-number--selected", current_url, -1)
+        current_page_number_according_to_page = int(page_number_a_tag.string)
+
+        if current_page_number_according_to_page != page_counter:
+            logger.info("the current page index is `%s` but the page says its on page `%s`, we have probably reached the end, breaking loop")
+            break
+
+
+        # the list of tags that contain each game listing
         grid_cell_div_tags = soup.select("div.grid-cell")
 
         logger.debug("got `%s` grid cell div tags", len(grid_cell_div_tags))
 
+        # get the ember JSON that we should have used instead of html scraping but i didn't find it until later, lol
         ember_view_json_str = None
         ember_view_json_script_tag = soup.select("script.ember-view")
         if len(ember_view_json_script_tag) == 1:
             ember_view_json_str = str(ember_view_json_script_tag[0].string)
+        else:
+            logger.error("couldn't find ember json?")
+            raise Exception("couldn't find ember json on url `{}` and idx `{}`".format(current_url, idx) )
 
         game_url_collection.page_ember_json_dict["page_{}".format(page_counter)] = ember_view_json_str
 
         iter_count = 0;
 
 
+        # iterate over each div tag that contains the info for a game
         for idx, iter_grid_cell_div_tag in enumerate(grid_cell_div_tags):
 
             title = None
@@ -254,12 +270,6 @@ def get_games_list(parsed_args):
 
 
         page_counter += 1
-
-        # TODO: could actually check to see if the url's page number matches what page counter we expect, since
-        # if you do like page 999999 , it will redirect to the largest page available and thats when we know we reached the end
-        # but i'm in a rush
-        if page_counter > 288:
-            break
 
 
 

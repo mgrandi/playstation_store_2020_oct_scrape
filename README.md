@@ -7,7 +7,7 @@ two parts, first part (individual game urls)
 
 ```plaintext
 
-jq -r ".game_urls[].url" C:\Users\auror\Desktop\ps_store_outfile_5.txt > url_list.txt
+jq -r ".game_urls[].url" C:\Users\mark\Desktop\ps_store_outfile_5.txt > url_list.txt
 
 ```
 
@@ -15,6 +15,6 @@ second part (get the urls that have the game listings)
 
 ```plaintext
 
-jq -r "[.game_urls[].metadata.store_page_url] | unique | .[]" C:\Users\auror\Desktop\ps_store_outfile_5.txt > url_list2.txt
+jq -r "[.game_urls[].metadata.store_page_url] | unique | .[]" C:\Users\mark\Desktop\ps_store_outfile_5.txt > url_list2.txt
 
 ```
