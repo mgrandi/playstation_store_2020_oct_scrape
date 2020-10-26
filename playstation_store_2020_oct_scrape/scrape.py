@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 
 # https://store.playstation.com/en-us/grid/STORE-MSF77008-ALLGAMES/1?PlatformPrivacyWs1=exempt&direction=asc&psappver=19.15.0&scope=sceapp&smcid=psapp%3Alink%20menu%3Astore&sort=release_date
 URL_ROOT = "https://store.playstation.com"
-URL_FORMAT_TEMPLATE = "{}/en-us/grid/STORE-MSF77008-ALLGAMES/{}".format(URL_ROOT, "{}")
+URL_FORMAT_TEMPLATE = "{}/de-de/grid/STORE-MSF75508-FULLGAMES/{}".format(URL_ROOT, "{}")
+# URL_FORMAT_TEMPLATE = "{}/en-us/grid/STORE-MSF77008-ALLGAMES/{}".format(URL_ROOT, "{}")
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0"
 GET_PARAMS = {
@@ -35,9 +36,11 @@ HEADERS = {
     "Accept-Encoding": "gzip, deflate",
     "Accept-Language": "en-US,en;q=0.5",
     "Cache-Control": "no-cache",
+    "Cookie": "cookie: akacd_valkyrie-storefront-to-gotham=2177452799~rv=65~id=110c5e7ff3de9d1edff3accaba985101; last_locale=de-DE; s_fid=0DE0FF05F43AB423-361B2AFF495657B2; s_cc=true; s_sq=%5B%5BB%5D%5D; JSESSIONID=8F41E5877F1128181AC08E3AD2BD3A91-n1",
     "Dnt": "1",
     "Host": "store.playstation.com",
     "User-Agent": USER_AGENT,
+    "Referer": "https://store.playstation.com/de-de/grid/STORE-MSF75508-ALLGAMES/1?PlatformPrivacyWs1=exempt&direction=asc&psappver=19.15.0&scope=sceapp&smcid=psapp%3Alink%20menu%3Astore&sort=release_date"
   }
 
 
@@ -50,6 +53,7 @@ session.headers.update(HEADERS)
 class GameUrlCollection:
     date_collected:str = attr.ib()
     game_urls:typing.Sequence[PlaystationStoreGameListing] = attr.ib(default=[])
+    page_ember_json_dict:str = attr.ib(default={})
 
 
 @attr.s
@@ -172,7 +176,15 @@ def get_games_list(parsed_args):
 
         logger.debug("got `%s` grid cell div tags", len(grid_cell_div_tags))
 
+        ember_view_json_str = None
+        ember_view_json_script_tag = soup.select("script.ember-view")
+        if len(ember_view_json_script_tag) == 1:
+            ember_view_json_str = str(ember_view_json_script_tag[0].string)
+
+        game_url_collection.page_ember_json_dict["page_{}".format(page_counter)] = ember_view_json_str
+
         iter_count = 0;
+
 
         for idx, iter_grid_cell_div_tag in enumerate(grid_cell_div_tags):
 
@@ -197,7 +209,7 @@ def get_games_list(parsed_args):
 
 
             # TODO FIX
-            region = "en-US"
+            region = "de-DE"
 
 
             # get metadata

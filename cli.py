@@ -95,7 +95,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="scrape the playstation games site",
-        epilog="Copyright 2020-10-24 - Mark Grandi")
+        epilog="Copyright 2020-10-24 - Mark Grandi",
+        fromfile_prefix_chars='@')
 
     parser.add_argument("--log-to-file-path", dest="log_to_file_path", type=isFileType(False), help="log to the specified file")
     parser.add_argument("--verbose", action="store_true", help="Increase logging verbosity")
