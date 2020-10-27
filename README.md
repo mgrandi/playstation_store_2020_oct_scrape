@@ -1,6 +1,27 @@
 # playstation_store_2020_oct_scrape
 
 
+## setup
+
+```plaintext
+
+# probably run this individual command as administrator as it should be installed globally
+pip3 install poetry
+
+cd playstation_store_2020_oct_scrape
+
+# these should be a file that gets setup by python, for me its located in
+# `C:\Python39\Scripts\poetry.exe`, and requires `C:\Python39\Scripts` to be in the PATH
+poetry shell
+
+poetry install
+
+# etc
+python3 cli.py --help
+python3 cli.py @args.txt
+
+```
+
 ## warcio scrape example:
 
 command line:
