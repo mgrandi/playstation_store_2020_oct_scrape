@@ -80,8 +80,10 @@ def do_warcio_scrape(parsed_args):
 
         for idx, iter_api_entry in enumerate(api_entry_list):
 
-            # prevent DDOS?
-            time.sleep(random.random())
+            # prevent DDOS hopefully...
+            time_to_sleep = random.random()
+            logger.info("[sleeping for `%s`]", time_to_sleep)
+            time.sleep(time_to_sleep)
 
             iter_discovered_media_list = []
 
