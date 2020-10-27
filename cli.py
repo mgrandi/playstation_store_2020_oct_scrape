@@ -137,15 +137,18 @@ if __name__ == "__main__":
         logging.captureWarnings(True) # capture warnings with the logging infrastructure
         root_logger = logging.getLogger()
         logging_formatter = ArrowLoggingFormatter("%(asctime)s %(threadName)-10s %(name)-20s %(levelname)-8s: %(message)s")
-        logging_handler = logging.StreamHandler(sys.stdout)
-        logging_handler.setFormatter(logging_formatter)
-        root_logger.addHandler(logging_handler)
 
         if parsed_args.log_to_file_path:
 
             file_handler = logging.FileHandler(parsed_args.log_to_file_path, encoding="utf-8")
             file_handler.setFormatter(logging_formatter)
             root_logger.addHandler(file_handler)
+
+        else:
+            logging_handler = logging.StreamHandler(sys.stdout)
+            logging_handler.setFormatter(logging_formatter)
+            root_logger.addHandler(logging_handler)
+
 
         # set logging level based on arguments
         if parsed_args.verbose:
