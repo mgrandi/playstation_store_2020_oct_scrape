@@ -6,6 +6,7 @@ import random
 from warcio.capture_http import capture_http
 import requests  # requests must be imported after capture_http
 import attr
+import arrow
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,8 @@ def do_warcio_scrape(parsed_args):
 
     session = requests.Session()
     session.headers.update(HEADERS)
+
+    start_time = arrow.utcnow()
 
     with open(parsed_args.sku_list, "r", encoding="utf-8") as file_list_fh:
         while True:
@@ -236,6 +239,12 @@ def do_warcio_scrape(parsed_args):
 
         for iter_media_url in discovered_media_url_list:
             f.write("{}\n".format(iter_media_url))
+
+    end_time = arrow.utcnow()
+
+    elapsed_time = end_time - start_time
+
+    logger.info("start time: `%s`, end time: `%s`, elapsed time: `%s`", start_time, end_time, elapsed_time)
 
 
 
