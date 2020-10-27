@@ -94,7 +94,7 @@ def do_warcio_scrape(parsed_args):
                 try:
 
                     response = session.get(iter_api_entry.valkyrie_url)
-                    logger.info("-- url `%s` - HTTP `%s` - length of `%s`", iter_api_entry, response.status_code, response.headers["Content-Length"])
+                    logger.info("-- url `%s` - HTTP `%s`", iter_api_entry, response.status_code)
 
                     response.raise_for_status()
                     success = True
@@ -183,7 +183,7 @@ def do_warcio_scrape(parsed_args):
                 try:
 
                     response_two = session.get(iter_api_entry.chihiro_url)
-                    logger.info("-- url `%s` - HTTP `%s` - length of `%s`", chihiro_url, response_two.status_code, response_two.headers["Content-Length"])
+                    logger.info("-- url `%s` - HTTP `%s`", chihiro_url, response_two.status_code)
 
                     response_two.raise_for_status()
                     success_two = True
