@@ -93,7 +93,7 @@ def do_warcio_scrape(parsed_args):
             logger.info("`%s / %s`: url: `%s`", idx, api_entry_list_size, iter_api_entry)
 
 
-            logger.info("-- making valkyrie api request")
+            logger.debug("-- making valkyrie api request")
             # get normal valkyrie response
             success = False
             response = None
@@ -134,7 +134,7 @@ def do_warcio_scrape(parsed_args):
                     # is a bundle, one will have it, the other won't
                     if KEY_THUMBNAIL_BASE in iter_attribute_json_dict.keys():
                         thumbnail = iter_attribute_json_dict[KEY_THUMBNAIL_BASE]
-                        logger.info("-- found media url (thumbnail): `%s`", thumbnail)
+                        logger.debug("-- found media url (thumbnail): `%s`", thumbnail)
                         iter_discovered_media_list.append(thumbnail)
 
                     # see if there are other media urls
@@ -149,7 +149,7 @@ def do_warcio_scrape(parsed_args):
 
                         thumbnail = parent_json_dict[KEY_THUMBNAIL]
 
-                        logger.info("-- found media url (parent - thumbnail): `%s`", thumbnail)
+                        logger.debug("-- found media url (parent - thumbnail): `%s`", thumbnail)
                         iter_discovered_media_list.append(thumbnail)
 
                     # media list stuff
@@ -161,29 +161,29 @@ def do_warcio_scrape(parsed_args):
                         for iter_preview_dict in media_list_dict[KEY_PREVIEW]:
 
                             preview_url = iter_preview_dict[KEY_URL]
-                            logger.info("-- found media url (media list - previews): `%s`", preview_url)
+                            logger.debug("-- found media url (media list - previews): `%s`", preview_url)
                             iter_discovered_media_list.append(preview_url)
 
                         for iter_promos_images_dict in media_list_dict[KEY_PROMO][KEY_IMAGES]:
 
                             image_url = iter_promos_images_dict[KEY_URL]
-                            logger.info("-- found media url (media list - promos - images): `%s`", image_url)
+                            logger.debug("-- found media url (media list - promos - images): `%s`", image_url)
                             iter_discovered_media_list.append(image_url)
 
                         for iter_promos_videos_dict in media_list_dict[KEY_PROMO][KEY_VIDEOS]:
 
                             vid_url = iter_promos_videos_dict[KEY_URL]
-                            logger.info("-- found media url (media list - promos - videos): `%s`", vid_url)
+                            logger.debug("-- found media url (media list - promos - videos): `%s`", vid_url)
                             iter_discovered_media_list.append(vid_url)
 
                         for iter_screenshot_dict in media_list_dict[KEY_SCREENSHOTS]:
 
                             ss_url = iter_screenshot_dict[KEY_URL]
-                            logger.info("-- found media url (media list - screenshots): `%s`", ss_url)
+                            logger.debug("-- found media url (media list - screenshots): `%s`", ss_url)
                             iter_discovered_media_list.append(ss_url)
 
 
-            logger.info("-- making chihiro api request")
+            logger.debug("-- making chihiro api request")
             success_two = False
             response_two = None
             response_json_two = None
@@ -221,13 +221,13 @@ def do_warcio_scrape(parsed_args):
 
                     image_type = iter_image_dict[KEY_TYPE]
                     image_url = iter_image_dict[KEY_URL]
-                    logger.info("-- found media url (chihiro images): `%s` of type `%s`", image_url, image_type)
+                    logger.debug("-- found media url (chihiro images): `%s` of type `%s`", image_url, image_type)
                     iter_discovered_media_list.append(image_url)
 
             num_media_this_run = len(iter_discovered_media_list)
-            logger.info("-- discovered `%s` media urls for this URL", num_media_this_run)
+            logger.debug("-- discovered `%s` media urls for this URL", num_media_this_run)
             discovered_media_url_list.extend(iter_discovered_media_list)
-            logger.info("-- discovered media list now has a size of `%s`", len(discovered_media_url_list))
+            logger.debug("-- discovered media list now has a size of `%s`", len(discovered_media_url_list))
 
 
 
