@@ -1,6 +1,7 @@
 import time
 import json
 import logging
+import random
 
 from warcio.capture_http import capture_http
 import requests  # requests must be imported after capture_http
@@ -78,6 +79,9 @@ def do_warcio_scrape(parsed_args):
     with capture_http(str(parsed_args.warc_output_file), warc_version='1.1'):
 
         for idx, iter_api_entry in enumerate(api_entry_list):
+
+            # prevent DDOS?
+            time.sleep(random.random())
 
             iter_discovered_media_list = []
 
