@@ -7,12 +7,15 @@ import sys
 import pathlib
 
 # third party imports
+from warcio.capture_http import capture_http
+import requests  # requests must be imported after capture_http
 import arrow
 import attr
 import logging_tree
 
 # self imports
 from playstation_store_2020_oct_scrape import scrape
+from playstation_store_2020_oct_scrape import warcio_scrape
 
 
 class ArrowLoggingFormatter(logging.Formatter):
@@ -115,6 +118,16 @@ if __name__ == "__main__":
     wpull_parser.add_argument("--warc-output-folder", dest="warc_output_folder", required=True, type=isDirectoryType, help="where to store the resulting WARCs")
     wpull_parser.set_defaults(func_to_run=scrape.wpull_games_list)
 
+
+    warcio_parser = subparsers.add_parser("warcio_scrape", help="download urls via warcio")
+    warcio_parser.add_argument("--sku-list", dest="sku_list", required=True, type=isFileType(), help="the list of skus to download")
+    warcio_parser.add_argument("--region-lang", dest="region_lang", required=True, help="the first part of a region code, aka the `en` in `en-US`")
+    warcio_parser.add_argument("--region-country", dest="region_country", required=True, help="the second part of a region code, aka the `us` in `en-US`")
+    warcio_parser.add_argument("--warc-output-file", dest="warc_output_file", type=isFileType(False),
+        help="where to save the warc file, include 'warc.gz' in this name please")
+    warcio_parser.add_argument("--media-files-output-file", dest="media_files_output_file", type=isFileType(False),
+        help="where to save the list of media urls we discovered")
+    warcio_parser.set_defaults(func_to_run=warcio_scrape.do_warcio_scrape)
 
 
     try:

@@ -15,7 +15,6 @@ from bs4 import BeautifulSoup
 logger = logging.getLogger(__name__)
 
 
-
 # https://store.playstation.com/en-us/grid/STORE-MSF77008-ALLGAMES/1?PlatformPrivacyWs1=exempt&direction=asc&psappver=19.15.0&scope=sceapp&smcid=psapp%3Alink%20menu%3Astore&sort=release_date
 URL_ROOT = "https://store.playstation.com"
 URL_FORMAT_TEMPLATE = "{}/de-de/grid/STORE-MSF75508-FULLGAMES/{}".format(URL_ROOT, "{}")
@@ -175,10 +174,11 @@ def get_games_list(parsed_args):
         # get current page number from webpage instead of guessing
         # we don't have a index yet so just pass in -1
         page_number_a_tag = get_tag_by_class_or_raise(soup, "a", "paginator-control__page-number--selected", current_url, -1)
-        current_page_number_according_to_page = int(page_number_a_tag.string)
+        current_page_number_according_to_html = int(page_number_a_tag.string)
 
-        if current_page_number_according_to_page != page_counter:
-            logger.info("the current page index is `%s` but the page says its on page `%s`, we have probably reached the end, breaking loop")
+        if current_page_number_according_to_html != page_counter:
+            logger.info("the current page index is `%s` but the page says its on page `%s`, we have probably reached the end, breaking loop",
+                page_counter, current_page_number_according_to_html)
             break
 
 
