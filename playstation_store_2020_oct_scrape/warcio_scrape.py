@@ -76,6 +76,7 @@ def do_warcio_scrape(parsed_args):
 
     api_entry_list_size = len(api_entry_list)
     logger.info("have `%s` urls to download", api_entry_list_size)
+    logger.info("writing media urls to `%s`", parsed_args.media_files_output_file)
 
 
     # the capture_http method probably doesn't take a path objet
@@ -229,22 +230,18 @@ def do_warcio_scrape(parsed_args):
             discovered_media_url_list.extend(iter_discovered_media_list)
             logger.debug("-- discovered media list now has a size of `%s`", len(discovered_media_url_list))
 
+            # write out the new media discovered this iteration in case we crash
+            with open(parsed_args.media_files_output_file, "a", encoding="utf-8", newline="\n") as f:
 
-
-    # write media urls
-
-    logger.info("writing `%s` media urls to `%s`", len(discovered_media_url_list), parsed_args.media_files_output_file)
-
-    with open(parsed_args.media_files_output_file, "w", encoding="utf-8") as f:
-
-        for iter_media_url in discovered_media_url_list:
-            f.write("{}\n".format(iter_media_url))
+                for iter_media_url in iter_discovered_media_list:
+                    f.write("{}\n".format(iter_media_url))
 
     end_time = arrow.utcnow()
 
     elapsed_time = end_time - start_time
 
     logger.info("start time: `%s`, end time: `%s`, elapsed time: `%s`", start_time, end_time, elapsed_time)
+    logger.info("discovered `%s` media urls", len(discovered_media_url_list))
 
 
 
