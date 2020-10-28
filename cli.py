@@ -16,6 +16,8 @@ import logging_tree
 # self imports
 from playstation_store_2020_oct_scrape import scrape
 from playstation_store_2020_oct_scrape import warcio_scrape
+from playstation_store_2020_oct_scrape import get_cloudinit_files
+from playstation_store_2020_oct_scrape import create_config_and_instances
 
 
 class ArrowLoggingFormatter(logging.Formatter):
@@ -103,6 +105,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--log-to-file-path", dest="log_to_file_path", type=isFileType(False), help="log to the specified file")
     parser.add_argument("--verbose", action="store_true", help="Increase logging verbosity")
+    parser.add_argument("--no-stdout", dest="no_stdout", action="store_true", help="if true, will not log to stdout" )
 
 
     subparsers = parser.add_subparsers(help="sub-command help" )
@@ -130,6 +133,27 @@ if __name__ == "__main__":
     warcio_parser.set_defaults(func_to_run=warcio_scrape.do_warcio_scrape)
 
 
+
+    cloudinit_parser = subparsers.add_parser("get_cloudinit_files", help="get files for cloudinit")
+    cloudinit_parser.add_argument("--sku-list", dest="sku_list", required=True, help="newline delimited list of skus")
+    cloudinit_parser.add_argument("--region-lang", dest="region_lang", required=True, help="the first part of a region code, aka the `en` in `en-US`")
+    cloudinit_parser.add_argument("--region-country", dest="region_country", required=True, help="the second part of a region code, aka the `us` in `en-US`")
+    cloudinit_parser.add_argument("--output-folder", dest="output_folder", required=True, type=isDirectoryType, help="where to store the resulting files")
+    cloudinit_parser.set_defaults(func_to_run=get_cloudinit_files.get_cloudinit_files)
+
+
+    create_config_and_instances_parser = subparsers.add_parser("create_config_and_instances", help="given a list of content-id files , create the config and then create DO instances")
+    create_config_and_instances_parser.add_argument("--digital-ocean-token", dest="digital_ocean_token", required=True,  help="the token to login to the DO API")
+    create_config_and_instances_parser.add_argument("--content-id-files-folder", dest="content_id_files_folder", required=True, type=isDirectoryType,
+        help="the folder of the `en-us.txt` like files that have the list of content ids")
+    create_config_and_instances_parser.add_argument("--cloudinit-config-output-folder", dest="cloudinit_config_output_folder",
+        required=True, type=isDirectoryType, help="where to store the generated cloudinit config")
+    create_config_and_instances_parser.add_argument("--machine-starting-id", dest="machine_starting_id",
+        required=True, type=int, help="the starting number for naming the droplets sequentially")
+    create_config_and_instances_parser.set_defaults(func_to_run=create_config_and_instances.run)
+
+
+
     try:
         parsed_args = parser.parse_args()
 
@@ -144,7 +168,7 @@ if __name__ == "__main__":
             file_handler.setFormatter(logging_formatter)
             root_logger.addHandler(file_handler)
 
-        else:
+        if not parsed_args.no_stdout:
             logging_handler = logging.StreamHandler(sys.stdout)
             logging_handler.setFormatter(logging_formatter)
             root_logger.addHandler(logging_handler)

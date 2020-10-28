@@ -50,6 +50,18 @@ es
 
 ```
 
+## cloud init files example
+
+```plaintext
+
+
+$ python cli.py get_cloudinit_files --sku-list "C:\Users\mgrandi\Desktop\ps_store\laststand\finished_regions_sourcefiles\es-es.txt" --region-lang "es" --region-country "es" --output-folder "C:\Users\mgrandi\Desktop\ps_store\laststand\cloudinit_files"
+
+2020-10-27T20:46:17.400896-07:00 MainThread playstation_store_2020_oct_scrape.get_cloudinit_files INFO    : url list written to `C:\Users\mgrandi\Desktop\ps_store\laststand\cloudinit_files\wget_at-url_list_es-es.txt`
+2020-10-27T20:46:17.405381-07:00 MainThread playstation_store_2020_oct_scrape.get_cloudinit_files INFO    : args file written to `C:\Users\mgrandi\Desktop\ps_store\laststand\cloudinit_files\wget_at_args_es-es.sh`
+
+```
+
 ## going from json list to url list
 
 

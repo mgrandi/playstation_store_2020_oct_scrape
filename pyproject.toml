@@ -12,6 +12,7 @@ logging_tree = "^1.8.1"
 requests = "^2.24.0"
 beautifulsoup4 = "^4.9.3"
 warcio = "^1.7.4"
+python-digitalocean = "^1.15.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
