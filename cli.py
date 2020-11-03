@@ -5,6 +5,7 @@ import argparse
 import logging
 import sys
 import pathlib
+import re
 
 # third party imports
 from warcio.capture_http import capture_http
@@ -18,6 +19,7 @@ from playstation_store_2020_oct_scrape import scrape
 from playstation_store_2020_oct_scrape import warcio_scrape
 from playstation_store_2020_oct_scrape import get_cloudinit_files
 from playstation_store_2020_oct_scrape import create_config_and_instances
+from playstation_store_2020_oct_scrape import rsync_files_from_droplets
 
 
 class ArrowLoggingFormatter(logging.Formatter):
@@ -48,6 +50,26 @@ def isValidNewFileLocation(filePath):
         raise argparse.ArgumentTypeError("The parent directory of  `{}` doesn't exist!".format(path_resolved))
 
     return path_resolved
+
+
+def isRegexType(regex_str):
+    '''
+    see if the given string is a valid regex
+    @param regex_str - the regex string we get from argparse
+    @return the compiled regex object if its valid else we raise an ArgumentTypeError
+
+    '''
+
+    obj = None
+
+    try:
+
+        obj = re.compile(regex_str)
+    except Exception as e:
+
+        raise argparse.ArgumentTypeError("Failed to compile the string `{}` as a regex: `{}`".format(regex_str, e))
+
+    return obj
 
 
 def isFileType(strict=True):
@@ -153,14 +175,29 @@ if __name__ == "__main__":
     create_config_and_instances_parser.set_defaults(func_to_run=create_config_and_instances.run)
 
 
+    rsync_files_parser = subparsers.add_parser("rsync_files_from_droplets", help="for every droplet specified, rsync files over to a local folder")
+    rsync_files_parser.add_argument("--username", required=True, help="the username to log into the drolets")
+    rsync_files_parser.add_argument("--rsync-binary", dest="rsync_binary", required=True, type=isFileType(True), help="path to the rsync binary")
+    # rsync_files_parser.add_argument("--cygnative-binary", dest="cygnative_binary", required=True, type=isFileType(True), help="path to the cygnative binary")
+    # rsync_files_parser.add_argument("--plink-binary", dest="plink_binary", required=True, type=isFileType(True), help="path to the plink binary")
+    rsync_files_parser.add_argument("--digital-ocean-token", dest="digital_ocean_token", required=True,  help="the token to login to the DO API")
+    rsync_files_parser.add_argument("--name-regex", dest="name_regex", required=True, type=isRegexType, help="regex for the names to match")
+    rsync_files_parser.add_argument("--dry-run", dest="dry_run", action="store_true", help="if true, only list what droplets we would rsync files over from")
+    rsync_files_parser.add_argument("--droplet-source-folder", dest="droplet_source_folder", required=True, help="the folder on the droplet that we are downloading files from")
+
+    rsync_files_parser.add_argument("--destination-folder", dest="destination_folder", type=isDirectoryType, help="where to tell rsync to store the files in, a folder will be created per droplet name")
+
+    rsync_files_parser.set_defaults(func_to_run=rsync_files_from_droplets.run)
+
 
     try:
-        parsed_args = parser.parse_args()
 
         # set up logging stuff
         logging.captureWarnings(True) # capture warnings with the logging infrastructure
         root_logger = logging.getLogger()
         logging_formatter = ArrowLoggingFormatter("%(asctime)s %(threadName)-10s %(name)-20s %(levelname)-8s: %(message)s")
+
+        parsed_args = parser.parse_args()
 
         if parsed_args.log_to_file_path:
 
@@ -179,7 +216,6 @@ if __name__ == "__main__":
             root_logger.setLevel("DEBUG")
         else:
             root_logger.setLevel("INFO")
-
 
 
         root_logger.debug("Parsed arguments: %s", parsed_args)
