@@ -9,47 +9,28 @@ import digitalocean
 logger = logging.getLogger(__name__)
 
 
-
-def native_windows_path_to_cygnative_path(path):
-
-
-    cygdrive_parts = ["/cygdrive"]
-
-    for idx, iter_part in enumerate(path.parts):
-        if idx == 0:
-            drive_letter = iter_part[0]
-            cygdrive_parts.append(drive_letter)
-            continue
-        cygdrive_parts.append(iter_part)
-
-    return "/".join(cygdrive_parts)
-
-
-def create_rsync_command_list(parsed_args, droplet):
-    # .\rsync --progress -args -e="..\..\cygnative1.2\cygnative plink" mgrandi@159.203.45.139:"/home/mgrandi/psstore/en-ca.txt" /cygdrive/c/Users/auror/Desktop/ps_store/laststand/tmp
-
-    dest_folder = parsed_args.destination_folder / droplet.name
-
-    # dest_folder = native_windows_path_to_cygnative_path(dest_folder)
+def create_rsync_command_list(parsed_args, droplet, destination_folder):
 
     cmd_list = [
         str(parsed_args.rsync_binary),
         # "--progress",
         "--itemize-changes",
-        "--recursive",
-        "--remove-source-files",
-        # "--rsh",
-        # "{} {}".format(parsed_args.cygnative_binary, parsed_args.plink_binary),
+        "--recursive"
+        ]
+
+    if parsed_args.remove_source_files:
+        cmd_list.append("--remove-source-files")
+
+    cmd_list.extend([
         "{}@{}:{}".format(parsed_args.username, droplet.ip_address, parsed_args.droplet_source_folder),
-        "{}".format(dest_folder)
-    ]
+        "{}".format(destination_folder)
+    ])
 
     return cmd_list
 
 
 
 def run(args):
-
 
 
     do_token = args.digital_ocean_token
@@ -67,11 +48,13 @@ def run(args):
 
     try:
 
+
         do_manager = digitalocean.Manager(token=do_token)
 
+        logger.info("Querying for the list of Digital Ocean droplets...")
         droplet_list = do_manager.get_all_droplets()
 
-        logger.info("have `%s` total droplets", len(droplet_list))
+        logger.info("Found `%s` total droplets", len(droplet_list))
 
     except Exception as e:
 
@@ -109,21 +92,35 @@ def run(args):
 
 
     # we are doing it for real
-
+    if args.remove_source_files:
+        logger.info("*** We are removing source files! ***")
 
     for iter_droplet in matched_droplets:
 
-        rsync_cmd = create_rsync_command_list(args, iter_droplet)
+        dest_folder = args.destination_folder / iter_droplet.name
+        dest_folder = dest_folder.resolve()
 
-        logger.info("command for droplet `%s` is `%s`", iter_droplet, rsync_cmd)
+        if not dest_folder.exists():
+            logger.info("creating folder `%s`", dest_folder)
+            dest_folder.mkdir()
+
+        rsync_cmd = create_rsync_command_list(args, iter_droplet, dest_folder)
+
+
+
+        logger.debug("command for droplet `%s` is `%s`", iter_droplet, rsync_cmd)
 
         command_result = None
 
         try:
 
+            logger.info("starting rsync command to transfer files from the droplet `%s` to `%s`", iter_droplet.name, dest_folder )
             command_result = subprocess.check_output(rsync_cmd)
 
-            logger.info("command for droplet `%s` succeeded: `%s`", iter_droplet, command_result)
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug("rsync command for droplet `%s` succeeded: `%s`", iter_droplet, command_result)
+            else:
+                logger.info("rsync command for droplet `%s` succeeded", iter_droplet.name)
         except Exception as e:
 
             logger.exception("command failed for droplet `%s`, command result: `%s`", iter_droplet, command_result)

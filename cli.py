@@ -178,14 +178,13 @@ if __name__ == "__main__":
     rsync_files_parser = subparsers.add_parser("rsync_files_from_droplets", help="for every droplet specified, rsync files over to a local folder")
     rsync_files_parser.add_argument("--username", required=True, help="the username to log into the drolets")
     rsync_files_parser.add_argument("--rsync-binary", dest="rsync_binary", required=True, type=isFileType(True), help="path to the rsync binary")
-    # rsync_files_parser.add_argument("--cygnative-binary", dest="cygnative_binary", required=True, type=isFileType(True), help="path to the cygnative binary")
-    # rsync_files_parser.add_argument("--plink-binary", dest="plink_binary", required=True, type=isFileType(True), help="path to the plink binary")
     rsync_files_parser.add_argument("--digital-ocean-token", dest="digital_ocean_token", required=True,  help="the token to login to the DO API")
     rsync_files_parser.add_argument("--name-regex", dest="name_regex", required=True, type=isRegexType, help="regex for the names to match")
     rsync_files_parser.add_argument("--dry-run", dest="dry_run", action="store_true", help="if true, only list what droplets we would rsync files over from")
     rsync_files_parser.add_argument("--droplet-source-folder", dest="droplet_source_folder", required=True, help="the folder on the droplet that we are downloading files from")
-
     rsync_files_parser.add_argument("--destination-folder", dest="destination_folder", type=isDirectoryType, help="where to tell rsync to store the files in, a folder will be created per droplet name")
+    rsync_files_parser.add_argument("--remove-source-files", dest="remove_source_files", action="store_true",
+        help="if set, will instruct rsync to remove the files after transfer (but leave folders, see the rsync docs for `--remove-source-files`")
 
     rsync_files_parser.set_defaults(func_to_run=rsync_files_from_droplets.run)
 
