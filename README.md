@@ -22,7 +22,169 @@ python3 cli.py @args.txt
 
 ```
 
-## warcio scrape example:
+## usage
+
+```plaintext
+$ python cli.py --help
+usage: cli.py [-h] [--log-to-file-path LOG_TO_FILE_PATH] [--verbose] [--no-stdout]
+              {scrape_urls,wpull_urls,warcio_scrape,get_cloudinit_files,create_config_and_instances,rsync_files_from_droplets}
+              ...
+
+scrape the playstation games site
+
+positional arguments:
+  {scrape_urls,wpull_urls,warcio_scrape,get_cloudinit_files,create_config_and_instances,rsync_files_from_droplets}
+                        sub-command help
+    scrape_urls         Scrape URLs to JSON
+    wpull_urls          download URLs with wpull
+    warcio_scrape       download urls via warcio
+    get_cloudinit_files
+                        get files for cloudinit
+    create_config_and_instances
+                        given a list of content-id files , create the config and then create DO instances
+    rsync_files_from_droplets
+                        for every droplet specified, rsync files over to a local folder
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --log-to-file-path LOG_TO_FILE_PATH
+                        log to the specified file
+  --verbose             Increase logging verbosity
+  --no-stdout           if true, will not log to stdout
+```
+
+## scrape_urls
+
+don't use :)
+
+## create_config_and_instances
+
+don't use yet :)
+
+## wpull_urls
+
+don't use :)
+
+## rsync_files_from_droplets
+```plaintext
+
+$ python cli.py rsync_files_from_droplets --help
+usage: cli.py rsync_files_from_droplets [-h] --username USERNAME --rsync-binary RSYNC_BINARY --digital-ocean-token
+                                        DIGITAL_OCEAN_TOKEN --name-regex NAME_REGEX [--dry-run]
+                                        --droplet-source-folder DROPLET_SOURCE_FOLDER
+                                        [--destination-folder DESTINATION_FOLDER]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --username USERNAME   the username to log into the drolets
+  --rsync-binary RSYNC_BINARY
+                        path to the rsync binary
+  --digital-ocean-token DIGITAL_OCEAN_TOKEN
+                        the token to login to the DO API
+  --name-regex NAME_REGEX
+                        regex for the names to match
+  --dry-run             if true, only list what droplets we would rsync files over from
+  --droplet-source-folder DROPLET_SOURCE_FOLDER
+                        the folder on the droplet that we are downloading files from
+  --destination-folder DESTINATION_FOLDER
+                        where to tell rsync to store the files in, a folder will be created per droplet name
+```
+
+### example
+
+
+#### dry run
+
+to test your `--name-regex`
+
+```plaintext
+$ python cli.py rsync_files_from_droplets --username "mgrandi" --digital-ocean-token "TOKEN_GOES_HERE" --rsync-binary "/usr/bin/rsync" --name-regex "^SCRAPERMINION.*$" --droplet-source-folder "/home/mgrandi/psstore/playstation_content_ids/scripts" --destination-folder "/home/mark/
+tmp" --dry-run
+
+2020-11-03T02:58:13.651710-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : have `6` total droplets
+2020-11-03T02:58:13.660307-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : Droplets that we would have acted on with the regex `re.compile('^SCRAPERMINION.*$')`:
+2020-11-03T02:58:13.662217-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : -- `<Droplet: 214183113 SCRAPERMINION-s-1vcpu-1gb-tor1-01>`
+2020-11-03T02:58:13.663647-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : -- `<Droplet: 214922151 SCRAPERMINION-s-1vcpu-1gb-tor1-02>`
+2020-11-03T02:58:13.667813-08:00 MainThread root                 INFO    : Done!
+
+```
+
+#### actual run
+
+```plaintext
+
+$ tree /home/mark/tmp
+/home/mark/tmp
+
+0 directories, 0 files
+
+
+
+$ python cli.py rsync_files_from_droplets --username "mgrandi" --digital-ocean-token "TOKEN_GOES_HERE" --rsync-binary "/usr/bin/rsync" --name-regex "^SCRAPERMINION.*$" --droplet-source-folder "/home/mgrandi/tmp" --destination-folder "/home/mark/tmp"
+
+2020-11-03T03:25:21.977305-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : Querying for the list of Digital Ocean droplets...
+2020-11-03T03:25:22.824925-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : Found `6` total droplets
+2020-11-03T03:25:22.827014-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : creating folder `/home/mark/tmp/SCRAPERMINION-s-1vcpu-1gb-tor1-01`
+2020-11-03T03:25:22.829485-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : starting rsync command to transfer files from the droplet `SCRAPERMINION-s-1vcpu-1gb-tor1-01` to `/home/mark/tmp/SCRAPERMINION-s-1vcpu-1gb-tor1-01`
+2020-11-03T03:25:26.584630-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : rsync command for droplet `SCRAPERMINION-s-1vcpu-1gb-tor1-01` succeeded
+2020-11-03T03:25:26.586911-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : creating folder `/home/mark/tmp/SCRAPERMINION-s-1vcpu-1gb-tor1-02`
+2020-11-03T03:25:26.588115-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : starting rsync command to transfer files from the droplet `SCRAPERMINION-s-1vcpu-1gb-tor1-02` to `/home/mark/tmp/SCRAPERMINION-s-1vcpu-1gb-tor1-02`
+2020-11-03T03:25:29.868707-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : rsync command for droplet `SCRAPERMINION-s-1vcpu-1gb-tor1-02` succeeded
+2020-11-03T03:25:29.875419-08:00 MainThread root                 INFO    : Done!
+
+
+
+mark@Alcidae:~$ tree /home/mark/tmp
+/home/mark/tmp
+├── SCRAPERMINION-s-1vcpu-1gb-tor1-01
+│   └── tmp
+│       └── test.txt
+└── SCRAPERMINION-s-1vcpu-1gb-tor1-02
+    └── tmp
+        └── test.txt
+
+4 directories, 2 files
+```
+
+### actual run - removing source files
+
+```plaintext
+
+$ python cli.py rsync_files_from_droplets --username "mgrandi" --digital-ocean-token "TOKEN_GOES_HERE" --rsync-binary "/usr/bin/rsync" --name-regex "^SCRAPERMINION.*$" --droplet-source-folder "/home/mgrandi/tmp" --destination-folder "/home/mark/tmp" --remove-source-files
+
+2020-11-03T03:28:05.705601-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : Querying for the list of Digital Ocean droplets...
+2020-11-03T03:28:06.873919-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : Found `6` total droplets
+2020-11-03T03:28:06.875979-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : *** We are removing source files! ***
+2020-11-03T03:28:06.877725-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : starting rsync command to transfer files from the droplet `SCRAPERMINION-s-1vcpu-1gb-tor1-01` to `/home/mark/tmp/SCRAPERMINION-s-1vcpu-1gb-tor1-01`
+2020-11-03T03:28:10.728561-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : rsync command for droplet `/SCRAPERMINION-s-1vcpu-1gb-tor1-01` succeeded
+2020-11-03T03:28:10.731581-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : starting rsync command to transfer files from the droplet `SCRAPERMINION-s-1vcpu-1gb-tor1-02` to `/home/mark/tmp/SCRAPERMINION-s-1vcpu-1gb-tor1-02`
+2020-11-03T03:28:13.937568-08:00 MainThread playstation_store_2020_oct_scrape.rsync_files_from_droplets INFO    : rsync command for droplet `SCRAPERMINION-s-1vcpu-1gb-tor1-02` succeeded
+2020-11-03T03:28:13.947158-08:00 MainThread root                 INFO    : Done!
+
+```
+
+## warcio_scrape
+
+```plaintext
+$ python cli.py warcio_scrape --help
+usage: cli.py warcio_scrape [-h] --sku-list SKU_LIST --region-lang REGION_LANG --region-country REGION_COUNTRY
+                            [--warc-output-file WARC_OUTPUT_FILE]
+                            [--media-files-output-file MEDIA_FILES_OUTPUT_FILE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --sku-list SKU_LIST   the list of skus to download
+  --region-lang REGION_LANG
+                        the first part of a region code, aka the `en` in `en-US`
+  --region-country REGION_COUNTRY
+                        the second part of a region code, aka the `us` in `en-US`
+  --warc-output-file WARC_OUTPUT_FILE
+                        where to save the warc file, include 'warc.gz' in this name please
+  --media-files-output-file MEDIA_FILES_OUTPUT_FILE
+                        where to save the list of media urls we discovered
+```
+
+### example:
 
 command line:
 
@@ -82,7 +244,26 @@ drwxrwxr-x 5 mgrandi mgrandi 4.0K Oct 28 12:22 ..
 save all of them, you can compress the .log file to save space, but the .warc.gz and the mediafiles.txt are the main output of this script
 
 
-## cloud init files example
+## get_cloudinit_files
+
+```plaintext
+$ python cli.py get_cloudinit_files --help
+usage: cli.py get_cloudinit_files [-h] --sku-list SKU_LIST --region-lang REGION_LANG --region-country
+                                  REGION_COUNTRY --output-folder OUTPUT_FOLDER
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --sku-list SKU_LIST   newline delimited list of skus
+  --region-lang REGION_LANG
+                        the first part of a region code, aka the `en` in `en-US`
+  --region-country REGION_COUNTRY
+                        the second part of a region code, aka the `us` in `en-US`
+  --output-folder OUTPUT_FOLDER
+                        where to store the resulting files
+
+```
+
+### example
 
 ```plaintext
 
@@ -94,7 +275,9 @@ $ python cli.py get_cloudinit_files --sku-list "C:\Users\mgrandi\Desktop\ps_stor
 
 ```
 
-## going from json list to url list
+## other misc commands
+
+### going from json list to url list
 
 
 two parts, first part (individual game urls)
