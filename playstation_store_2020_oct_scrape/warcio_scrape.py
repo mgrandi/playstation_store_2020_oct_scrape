@@ -104,7 +104,7 @@ def do_warcio_scrape(parsed_args):
                 try:
 
                     response = session.get(iter_api_entry.valkyrie_url)
-                    logger.info("-- url `%s` - HTTP `%s`", iter_api_entry, response.status_code)
+                    logger.info("-- url `%s` - HTTP `%s`", iter_api_entry.valkyrie_url, response.status_code)
 
                     response.raise_for_status()
                     success = True
