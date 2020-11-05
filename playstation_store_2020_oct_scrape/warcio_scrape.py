@@ -112,12 +112,12 @@ def do_warcio_scrape(parsed_args):
                     break
 
                 except Exception as e:
-                    logger.error("-- error number `%s` when getting url `%s`: `%s`", i, iter_api_entry, e)
+                    logger.error("-- error number `%s` when getting url `%s`: `%s`", i, iter_api_entry.valkyrie_url, e)
                     time.sleep(TIME_SECONDS_TO_SLEEP_BETWEEN_FAILURES)
                     continue
 
             if not success:
-                logger.error("-- hit `%s` retries when attempting to get URL `%s`, skipping", MAX_RETRIES, iter_api_entry)
+                logger.error("-- hit `%s` retries when attempting to get URL `%s`, skipping", MAX_RETRIES, iter_api_entry.valkyrie_url)
                 continue
 
             else:
@@ -193,7 +193,7 @@ def do_warcio_scrape(parsed_args):
                 try:
 
                     response_two = session.get(iter_api_entry.chihiro_url)
-                    logger.info("-- url `%s` - HTTP `%s`", chihiro_url, response_two.status_code)
+                    logger.info("-- url `%s` - HTTP `%s`", iter_api_entry.chihiro_url, response_two.status_code)
 
                     response_two.raise_for_status()
                     success_two = True
@@ -202,12 +202,12 @@ def do_warcio_scrape(parsed_args):
                     break
 
                 except Exception as e:
-                    logger.error("-- error number `%s` when getting url `%s`: `%s`", i, chihiro_url, e)
+                    logger.error("-- error number `%s` when getting url `%s`: `%s`", i, iter_api_entry.chihiro_url, e)
                     time.sleep(TIME_SECONDS_TO_SLEEP_BETWEEN_FAILURES)
                     continue
 
             if not success_two:
-                logger.error("-- hit `%s` retries when attempting to get URL `%s`, skipping", MAX_RETRIES, chihiro_url)
+                logger.error("-- hit `%s` retries when attempting to get URL `%s`, skipping", MAX_RETRIES, iter_api_entry.chihiro_url)
                 continue
 
             else:
