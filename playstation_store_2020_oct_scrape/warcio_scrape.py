@@ -202,12 +202,12 @@ def do_warcio_scrape(parsed_args):
                     break
 
                 except Exception as e:
-                    logger.error("-- error number `%s` when getting url `%s`: `%s`", i, chihiro_url, e)
+                    logger.error("-- error number `%s` when getting url `%s`: `%s`", i, iter_api_entry.chihiro_url, e)
                     time.sleep(TIME_SECONDS_TO_SLEEP_BETWEEN_FAILURES)
                     continue
 
             if not success_two:
-                logger.error("-- hit `%s` retries when attempting to get URL `%s`, skipping", MAX_RETRIES, chihiro_url)
+                logger.error("-- hit `%s` retries when attempting to get URL `%s`, skipping", MAX_RETRIES, iter_api_entry.chihiro_url)
                 continue
 
             else:
