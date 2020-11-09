@@ -91,7 +91,7 @@ def do_warcio_scrape(parsed_args):
 
             iter_discovered_media_list = []
 
-            logger.info("`%s / %s`: url: `%s`", idx, api_entry_list_size, iter_api_entry)
+            logger.info("`%s / %s`: url: `%s`", idx+1, api_entry_list_size, iter_api_entry)
 
 
             logger.debug("-- making valkyrie api request")
@@ -118,7 +118,6 @@ def do_warcio_scrape(parsed_args):
 
             if not success:
                 logger.error("-- hit `%s` retries when attempting to get URL `%s`, skipping", MAX_RETRIES, iter_api_entry.valkyrie_url)
-                continue
 
             else:
 
