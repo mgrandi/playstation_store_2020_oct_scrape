@@ -118,7 +118,6 @@ def do_warcio_scrape(parsed_args):
 
             if not success:
                 logger.error("-- hit `%s` retries when attempting to get URL `%s`, skipping", MAX_RETRIES, iter_api_entry.valkyrie_url)
-                continue
 
             else:
 
