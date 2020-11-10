@@ -21,6 +21,7 @@ def run(parsed_args):
     old_valkyrie_skipped_regex_obj = re.compile(r"ApiEntry")
     new_valkyrie_skipped_regex_obj = re.compile(r"URL `https:\/\/store\.playstation\.com\/valkyrie-api")
     chihiro_skipped_regex_obj = re.compile(r"URL `https:\/\/store\.playstation\.com\/store\/api\/chihiro")
+    log_end_regex_obj = re.compile(r": start time: `")
 
     errored_item_list = []
     valkyrie_failed = False
@@ -30,9 +31,8 @@ def run(parsed_args):
     with open(parsed_args.source_log, "r", encoding="utf-8") as source_log_fh:
         for line in source_log_fh:
             if line != "\n":
-                item_start_match_obj = item_start_regex_obj.search(line)
 
-                if item_start_match_obj:
+                if item_start_regex_obj.search(line) or log_end_regex_obj.search(line):
                     # Previous item has now ended, so store
                     # results if necessary
                     if current_api_entry is not None and (valkyrie_failed or chihiro_failed):
@@ -40,6 +40,9 @@ def run(parsed_args):
                         # Only add unique entries
                         if current_api_entry.sku not in sku_list:
                             errored_item_list.append(ErrorItem(current_api_entry, valkyrie_failed, chihiro_failed))
+
+                    if log_end_regex_obj.search(line):
+                        break
 
                     # Setup for the next item
                     valkyrie_failed = False
