@@ -58,12 +58,12 @@ def run(parsed_args):
 
     logger.info("found `%s` failed items", len(errored_item_list))
 
-    errored_valkyrie_list = [x.api for x in errored_item_list if x.valkyrie_failed]
-    errored_chihiro_list = [x.api for x in errored_item_list if x.chihiro_failed]
+    errored_valkyrie_list = [x.api for x in errored_item_list if x.valkyrie_failed and not x.chihiro_failed]
+    errored_chihiro_list = [x.api for x in errored_item_list if x.chihiro_failed and not x.valkyrie_failed]
     errored_both_list = [x.api for x in errored_item_list if x.valkyrie_failed and x.chihiro_failed]
 
-    logger.info("-- `%s` have failed valkyrie links", len(errored_valkyrie_list))
-    logger.info("-- `%s` have failed chihiro links", len(errored_chihiro_list))
+    logger.info("-- `%s` have failed valkyrie links only", len(errored_valkyrie_list))
+    logger.info("-- `%s` have failed chihiro links only", len(errored_chihiro_list))
     logger.info("-- `%s` have both failed valkyrie and chihiro links", len(errored_both_list))
 
     logger.info("Writing to %s", parsed_args.error_item_output_file)
