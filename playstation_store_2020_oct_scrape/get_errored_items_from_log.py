@@ -26,6 +26,7 @@ def run(parsed_args):
     valkyrie_failed = False
     chihiro_failed = False
     current_api_entry = None
+    logger.info("Opening log file: `%s`", parsed_args.source_log)
     with open(parsed_args.source_log, "r", encoding="utf-8") as source_log_fh:
         for line in source_log_fh:
             if line != "\n":
