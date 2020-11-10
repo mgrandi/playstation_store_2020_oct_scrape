@@ -74,24 +74,38 @@ def run(parsed_args):
         logger.info("Writing out URLs instead of IDs")
     if parsed_args.only_dual_failures:
         logger.info("Writing only items with dual failures")
+    if parsed_args.only_valkyrie_failures:
+        logger.info("Writing only items with valkyrie failures and no chihiro failures")
+    if parsed_args.only_chihiro_failures:
+        logger.info("Writing only items with chihiro failures and no valkyrie failures")
 
+    # Prepare the output based on the provided switches
     if parsed_args.output_as_URLs:
-        with open(parsed_args.error_item_output_file, "w", encoding="utf-8", newline="\n") as f:
-            for item in errored_item_list:
-                if parsed_args.only_dual_failures:
-                    if item.valkyrie_failed and item.chihiro_failed:
-                        f.write("{}\n".format(item.api.valkyrie_url))
-                        f.write("{}\n".format(item.api.chihiro_url))
-                else:
-                    if item.valkyrie_failed:
-                        f.write("{}\n".format(item.api.valkyrie_url))
-                    if item.chihiro_failed:
-                        f.write("{}\n".format(item.api.chihiro_url))
+        if parsed_args.only_dual_failures:
+            print_item_list = [x for item in errored_item_list for x in (item.api.valkyrie_url, item.api.chihiro_url)
+                               if item.valkyrie_failed and item.chihiro_failed]
+        elif parsed_args.only_valkyrie_failures:
+            print_item_list = [item.api.valkyrie_url for item in errored_item_list
+                               if item.valkyrie_failed and not item.chihiro_failed]
+        elif parsed_args.only_chihiro_failures:
+            print_item_list = [item.api.chihiro_url for item in errored_item_list
+                               if not item.valkyrie_failed and item.chihiro_failed]
+        else:
+            print_item_list = [x for item in errored_item_list for x in (item.api.valkyrie_url, item.api.chihiro_url)]
     else:
-        with open(parsed_args.error_item_output_file, "w", encoding="utf-8", newline="\n") as f:
-            for item in errored_item_list:
-                if parsed_args.only_dual_failures:
-                    if item.valkyrie_failed and item.chihiro_failed:
-                        f.write("{}\n".format(item.api.sku))
-                else:
-                    f.write("{}\n".format(item.api.sku))
+        if parsed_args.only_dual_failures:
+            print_item_list = [item.api.sku for item in errored_item_list
+                               if item.valkyrie_failed and item.chihiro_failed]
+        elif parsed_args.only_valkyrie_failures:
+            print_item_list = [item.api.sku for item in errored_item_list
+                               if item.valkyrie_failed and not item.chihiro_failed]
+        elif parsed_args.only_chihiro_failures:
+            print_item_list = [item.api.sku for item in errored_item_list
+                               if not item.valkyrie_failed and item.chihiro_failed]
+        else:
+            print_item_list = [item.api.sku for item in errored_item_list]
+
+
+    with open(parsed_args.error_item_output_file, "w", encoding="utf-8", newline="\n") as f:
+        for item in print_item_list:
+            f.write("{}\n".format(item))

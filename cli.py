@@ -193,7 +193,12 @@ if __name__ == "__main__":
     log_reader_parser.add_argument("--source-log", dest="source_log", required=True, type=isFileType(), help="path to the warcio scrape log that you want to extract from")
     log_reader_parser.add_argument("--output-file", dest="error_item_output_file", required=True, type=isFileType(False), help="newline-delmited output will be written to this file")
     log_reader_parser.add_argument("--output-as-URLs", dest="output_as_URLs", action="store_true", help="if set, output the exact URLs that failed instead of the associated IDs")
-    log_reader_parser.add_argument("--only-dual-failures", dest="only_dual_failures", action="store_true", help="if set, only output the items that failed for both chihiro and valkyrie")
+    log_reader_parser_group = log_reader_parser.add_mutually_exclusive_group()
+    log_reader_parser_group.add_argument("--only-dual-failures", dest="only_dual_failures", action="store_true", help="if set, only output the items that failed for both chihiro and valkyrie")
+    log_reader_parser_group.add_argument("--only-valkyrie-failures", dest="only_valkyrie_failures", action="store_true",
+                                   help="if set, only output the items that failed for valkyrie and not chihiro")
+    log_reader_parser_group.add_argument("--only-chihiro-failures", dest="only_chihiro_failures", action="store_true",
+                                   help="if set, only output the items that failed for chihiro and not valkyrie")
     log_reader_parser.set_defaults(func_to_run=get_errored_items_from_log.run)
 
     try:
