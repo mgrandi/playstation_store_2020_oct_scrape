@@ -281,7 +281,7 @@ Given a warcio scrape log file, outputs the IDs that failed to download.
 
 ```plaintext
 $ python cli.py get_errored_items_from_log --help
-usage: cli.py get_errored_items_from_log [-h] --source-log SOURCE_LOG --output-file ERROR_ITEM_OUTPUT_FILE [--output-as-URLs] [--only-dual-failures]
+usage: cli.py get_errored_items_from_log [-h] --source-log SOURCE_LOG --output-file ERROR_ITEM_OUTPUT_FILE [--output-as-URLs] [--only-dual-failures | --only-valkyrie-failures | --only-chihiro-failures]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -291,7 +291,10 @@ optional arguments:
                         newline-delmited output will be written to this file
   --output-as-URLs      if set, output the exact URLs that failed instead of the associated IDs
   --only-dual-failures  if set, only output the items that failed for both chihiro and valkyrie
-
+  --only-valkyrie-failures
+                        if set, only output the items that failed for valkyrie and not chihiro
+  --only-chihiro-failures
+                        if set, only output the items that failed for chihiro and not valkyrie
 ```
 
 ### example:
@@ -320,13 +323,13 @@ You can feed this text file back into warcio_scrape to retry.
 
 The log output will also give you some info about what was found.
 ```plaintext
-2020-11-10T18:44:18.883655+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : Opening log file: `/home/mgrandi/playstation_store_2020_oct_scrape/ps_store_oct2020_scrape_ja-jp_update.log`
-2020-11-10T18:44:19.483894+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : found `57` failed items
-2020-11-10T18:44:19.484870+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : -- `14` have failed valkyrie links only
-2020-11-10T18:44:19.485846+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : -- `43` have failed chihiro links only
-2020-11-10T18:44:19.485846+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : -- `0` have both failed valkyrie and chihiro links
-2020-11-10T18:44:19.486822+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : Writing to /home/mgrandi/playstation_store_2020_oct_scrape/err.txt
-2020-11-10T18:44:19.489778+09:00 MainThread root                 INFO    : Done!
+2020-11-11T23:57:56.943719+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : Opening log file: `/home/mgrandi/playstation_store_2020_oct_scrape/ps_store_oct2020_scrape_ja-jp_try1.log`
+2020-11-11T23:57:57.375228+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : found `87` failed items
+2020-11-11T23:57:57.375228+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : -- `0` have failed valkyrie links only
+2020-11-11T23:57:57.375228+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : -- `71` have failed chihiro links only
+2020-11-11T23:57:57.376226+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : -- `16` have both failed valkyrie and chihiro links
+2020-11-11T23:57:57.376226+09:00 MainThread playstation_store_2020_oct_scrape.get_errored_items_from_log INFO    : Writing to /home/mgrandi/playstation_store_2020_oct_scrape/ja-jp_err.txt
+2020-11-11T23:57:57.379190+09:00 MainThread root                 INFO    : Done!
 ```
 
 ## other misc commands
