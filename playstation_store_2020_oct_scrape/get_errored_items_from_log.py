@@ -61,7 +61,7 @@ def run(parsed_args):
                     if chihiro_skipped_regex_obj.search(line):
                         chihiro_failed = True
 
-    logger.info("found `%s` failed items out of %s total items for a failure rate of %s%%", len(errored_item_list), total_items_count, len(errored_item_list)/total_items_count*100)
+    logger.info("found `%s` failed items out of %s total items for a failure rate of %1.2f%%", len(errored_item_list), total_items_count, len(errored_item_list)/total_items_count*100)
 
     errored_valkyrie_list = [x.api for x in errored_item_list if x.valkyrie_failed and not x.chihiro_failed]
     errored_chihiro_list = [x.api for x in errored_item_list if x.chihiro_failed and not x.valkyrie_failed]
