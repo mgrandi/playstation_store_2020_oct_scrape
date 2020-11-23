@@ -23,6 +23,7 @@ def run(parsed_args):
     chihiro_skipped_regex_obj = re.compile(r"URL `https:\/\/store\.playstation\.com\/store\/api\/chihiro")
     log_end_regex_obj = re.compile(r": start time: `")
 
+    total_items_count = 0
     errored_item_list = []
     valkyrie_failed = False
     chihiro_failed = False
@@ -33,6 +34,7 @@ def run(parsed_args):
             if line != "\n":
 
                 if item_start_regex_obj.search(line) or log_end_regex_obj.search(line):
+                    total_items_count += 1
                     # Previous item has now ended, so store
                     # results if necessary
                     if current_api_entry is not None and (valkyrie_failed or chihiro_failed):
@@ -59,7 +61,7 @@ def run(parsed_args):
                     if chihiro_skipped_regex_obj.search(line):
                         chihiro_failed = True
 
-    logger.info("found `%s` failed items", len(errored_item_list))
+    logger.info("found `%s` failed items out of %s total items for a failure rate of %1.2f%%", len(errored_item_list), total_items_count, len(errored_item_list)/total_items_count*100)
 
     errored_valkyrie_list = [x.api for x in errored_item_list if x.valkyrie_failed and not x.chihiro_failed]
     errored_chihiro_list = [x.api for x in errored_item_list if x.chihiro_failed and not x.valkyrie_failed]
