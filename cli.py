@@ -21,6 +21,7 @@ from playstation_store_2020_oct_scrape import get_cloudinit_files
 from playstation_store_2020_oct_scrape import create_config_and_instances
 from playstation_store_2020_oct_scrape import rsync_files_from_droplets
 from playstation_store_2020_oct_scrape import get_errored_items_from_log
+from playstation_store_2020_oct_scrape import generate_wpull_urls_from_content_ids
 
 
 class ArrowLoggingFormatter(logging.Formatter):
@@ -200,6 +201,14 @@ if __name__ == "__main__":
     log_reader_parser_group.add_argument("--only-chihiro-failures", dest="only_chihiro_failures", action="store_true",
                                    help="if set, only output the items that failed for chihiro and not valkyrie")
     log_reader_parser.set_defaults(func_to_run=get_errored_items_from_log.run)
+
+
+    wpull_urls_parser = subparsers.add_parser("generate_wpull_urls_from_content_ids", help="generate urls for wpull given a list of content ids")
+    wpull_urls_parser.add_argument("--content-ids-file", dest="content_ids_file", required=True, type=isFileType(), help="the file of content ids")
+    wpull_urls_parser.add_argument("--output-file", dest="output_file",  required=True, type=isFileType(False), help="where to store the output")
+    wpull_urls_parser.add_argument("--region-lang", dest="region_lang", required=True, help="the first part of a region code, aka the `en` in `en-US`")
+    wpull_urls_parser.add_argument("--region-country", dest="region_country", required=True, help="the second part of a region code, aka the `us` in `en-US`")
+    wpull_urls_parser.set_defaults(func_to_run=generate_wpull_urls_from_content_ids.run)
 
     try:
 
