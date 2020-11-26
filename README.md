@@ -332,6 +332,40 @@ The log output will also give you some info about what was found.
 2020-11-11T23:57:57.379190+09:00 MainThread root                 INFO    : Done!
 ```
 
+
+## generate_wpull_urls_from_content_ids
+
+this takes a list of playstation content ids, and then generates a URL list that has the URLs for each JSON API filled in with the correct content id, region language and region country filled in
+
+```plaintext
+$ python cli.py generate_wpull_urls_from_content_ids --help
+
+usage: cli.py generate_wpull_urls_from_content_ids [-h] --content-ids-file CONTENT_IDS_FILE --output-file OUTPUT_FILE --region-lang REGION_LANG --region-country
+                                                   REGION_COUNTRY
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --content-ids-file CONTENT_IDS_FILE
+                        the file of content ids
+  --output-file OUTPUT_FILE
+                        where to store the output
+  --region-lang REGION_LANG
+                        the first part of a region code, aka the `en` in `en-US`
+  --region-country REGION_COUNTRY
+                        the second part of a region code, aka the `us` in `en-US`
+```
+
+### example
+
+```plaintext
+$ python cli.py generate_wpull_urls_from_content_ids --content-ids-file "C:\Users\mark\Code\Personal\git\playstation_content_ids\regions\ja-jp.txt" --output-file "C:\Users\mark\Desktop\ps_store_wpull\test_output.txt" --region-lang "ja" --region-country "jp"
+
+2020-11-26T07:09:56.080228-08:00 MainThread playstation_store_2020_oct_scrape.generate_wpull_urls_from_content_ids INFO    : region language: `ja`, region country: `jp`
+2020-11-26T07:09:56.085227-08:00 MainThread playstation_store_2020_oct_scrape.generate_wpull_urls_from_content_ids INFO    : reading the file `C:\Users\mark\Code\Personal\git\playstation_content_ids\regions\ja-jp.txt` as a text file
+2020-11-26T07:09:56.088230-08:00 MainThread playstation_store_2020_oct_scrape.generate_wpull_urls_from_content_ids INFO    : writing to output file `C:\Users\mark\Desktop\ps_store_wpull\test_output.txt`
+2020-11-26T07:09:56.517352-08:00 MainThread root                 INFO    : Done!
+```
+
 ## other misc commands
 
 ### going from json list to url list

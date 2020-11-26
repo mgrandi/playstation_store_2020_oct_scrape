@@ -19,6 +19,8 @@ def run(parsed_args):
 
     file_obj = None
 
+    logger.info("region language: `%s`, region country: `%s`", region_lang, region_country)
+
     if input_file_path.suffix == ".xz":
 
         logger.info("reading the file `%s` as a XZ compressed text file", input_file_path)
@@ -31,6 +33,8 @@ def run(parsed_args):
 
         file_obj = open(input_file_path, "r", encoding="utf-8")
 
+
+    logger.info("writing to output file `%s`", output_file_path)
 
     with open(output_file_path, "w", encoding="utf-8") as f:
 
