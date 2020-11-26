@@ -1,13 +1,12 @@
 import logging
 import json
 import enum
-import attr
 
 from wpull.application.plugin import WpullPlugin, PluginFunctions, hook, event
 from wpull.pipeline.session import ItemSession
-
 import jmespath
 import jmespath.parser
+import attr
 
 logger = logging.getLogger(__name__)
 
