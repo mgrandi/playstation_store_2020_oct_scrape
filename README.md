@@ -357,6 +357,8 @@ optional arguments:
 
 ### example
 
+using a plain text file as the input:
+
 ```plaintext
 $ python cli.py generate_wpull_urls_from_content_ids --content-ids-file "C:\Users\mark\Code\Personal\git\playstation_content_ids\regions\ja-jp.txt" --output-file "C:\Users\mark\Desktop\ps_store_wpull\test_output.txt" --region-lang "ja" --region-country "jp"
 
@@ -364,6 +366,18 @@ $ python cli.py generate_wpull_urls_from_content_ids --content-ids-file "C:\User
 2020-11-26T07:09:56.085227-08:00 MainThread playstation_store_2020_oct_scrape.generate_wpull_urls_from_content_ids INFO    : reading the file `C:\Users\mark\Code\Personal\git\playstation_content_ids\regions\ja-jp.txt` as a text file
 2020-11-26T07:09:56.088230-08:00 MainThread playstation_store_2020_oct_scrape.generate_wpull_urls_from_content_ids INFO    : writing to output file `C:\Users\mark\Desktop\ps_store_wpull\test_output.txt`
 2020-11-26T07:09:56.517352-08:00 MainThread root                 INFO    : Done!
+```
+
+using a XZ compressed text file as the input:
+
+```plaintext
+
+$ python cli.py generate_wpull_urls_from_content_ids --content-ids-file "C:\Users\mark\Code\Personal\git\playstation_content_ids\regions\en-ca.txt.xz" --output-file "C:\Users\mark\Desktop\ps_store_wpull\2020-11-27_en-ca_combined_jsonapi_url_list.txt" --region-lang en --region-country ca
+
+2020-11-27T16:34:08.183683-08:00 MainThread playstation_store_2020_oct_scrape.generate_wpull_urls_from_content_ids INFO    : region language: `en`, region country: `ca`
+2020-11-27T16:34:08.185651-08:00 MainThread playstation_store_2020_oct_scrape.generate_wpull_urls_from_content_ids INFO    : reading the file `C:\Users\mark\Code\Personal\git\playstation_content_ids\regions\en-ca.txt.xz` as a XZ compressed text file
+2020-11-27T16:34:08.207559-08:00 MainThread playstation_store_2020_oct_scrape.generate_wpull_urls_from_content_ids INFO    : writing to output file `C:\Users\mark\Desktop\ps_store_wpull\2020-11-27_en-ca_combined_jsonapi_url_list.txt`
+2020-11-27T16:34:08.623086-08:00 MainThread root                 INFO    : Done!
 ```
 
 ## other misc commands
