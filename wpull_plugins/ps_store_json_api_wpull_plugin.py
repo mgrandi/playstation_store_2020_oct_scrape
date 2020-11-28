@@ -135,44 +135,59 @@ class PsStoreJsonApiWpullPlugin(WpullPlugin):
 
             logger.info("`process_result() - %s`: parsed successfully", url_type)
 
-            for iter_json_search_query_obj in jmespath_expr_list:
-
-                try:
-                    iter_jmespath_expr = iter_json_search_query_obj.jmespath_compiled_query
-
-                    result_set = None
-                    result_obj = iter_jmespath_expr.search(json_obj)
-
-                    logger.info("`process_result() - %s`: the expr `%s` found result: `%s`",
-                        url_type, iter_json_search_query_obj.jmespath_query, result_obj)
-
-                    # convert into a set if its not
-                    # it could be a bare string
-                    if isinstance(result_obj, str):
-                        result_set = {result_obj}
-                    else:
-                        # we got a list, convert to a set to deduplicate urls
-                        result_set = set(result_obj)
-
-
-                    if result_set:
-                        urls_to_add_set.update(result_set)
-
-                except Exception as exc:
-
-                    logger.exception("Unhandled exception when processing the url `%s` with the JsonSearchQuery `%s`",
-                        url, iter_json_search_query_obj)
-
-                    raise exc
-
-
-            logger.info("`process_result() - %s`: urls parsed from url `%s` were: `%s`", url_type, url, urls_to_add_set)
-
         except Exception as e:
 
             logger.exception("`process_result() - %s`: Problem decoding the body as JSON for the url `%s, returning empty set",
                 url_type, url)
             return set()
+
+        for iter_json_search_query_obj in jmespath_expr_list:
+
+            try:
+                iter_jmespath_expr = iter_json_search_query_obj.jmespath_compiled_query
+
+                result_set = set()
+                result_obj = iter_jmespath_expr.search(json_obj)
+
+                logger.info("`process_result() - %s`: the expr `%s` found result: `%s`",
+                    url_type, iter_json_search_query_obj.jmespath_query, result_obj)
+
+                # convert jmespath result into a set
+                if result_obj is None:
+                    logger.debug("result_obj is none, skipping")
+
+                elif isinstance(result_obj, list):
+                    final_set = set()
+                    for iter_result in result_obj:
+                        if iter_result:
+                            final_set.add(iter_result)
+
+                    result_set.update(final_set)
+
+
+                elif isinstance(result_obj, str):
+
+                    # have to do it this way or else it will make a set of the
+                    # individual characters of the string which isn't what we want
+                    result_set = {result_obj}
+
+                else:
+                    # we got a list, convert to a set to deduplicate urls
+                    result_set = set(result_obj)
+
+
+                if result_set:
+                    logger.debug("adding `%s` entries to result set", len(result_set))
+                    urls_to_add_set.update(result_set)
+
+            except Exception as exc:
+
+                logger.exception("Unhandled exception when processing the url `%s` with the JsonSearchQuery `%s`",
+                    url, iter_json_search_query_obj)
+
+                raise exc
+
+        logger.info("`process_result() - %s`: urls parsed from url `%s` were: `%s`", url_type, url, urls_to_add_set)
 
         return urls_to_add_set
 
