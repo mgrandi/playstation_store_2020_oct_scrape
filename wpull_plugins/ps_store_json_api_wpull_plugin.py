@@ -1,6 +1,7 @@
 import logging
 import json
 import enum
+import re
 
 from wpull.application.plugin import WpullPlugin, PluginFunctions, hook, event
 from wpull.pipeline.session import ItemSession
@@ -15,6 +16,19 @@ logger = logging.getLogger(__name__)
 VALKYRIE_URL_PREFIX = "https://store.playstation.com/valkyrie-api/"
 CHIHIRO_URL_PREFIX = "https://store.playstation.com/store/api/chihiro/"
 CHIHIRO_IMAGE_URL_SUFFIX = "/image"
+
+URLS_TO_SKIP_REGEX_LIST = [
+
+    # this is a wierd one, i think its because its trying to search the response for urls and somehow gets this?
+    # need to investigate it , TODO
+    re.compile("^http[s]?://json/.*"),
+
+    # example: http://cdn.sp-int.ac.playstation.net/UP4235/CUSA06154_00/0njVKtt3dBGfRXDZWLzjhOSRGcqOl21Z.png’
+    re.compile("^http[s]?://cdn\.sp-int\.ac\.playstation.net.*"),
+
+    # example: https://npmt.mgmt.tools.playstation.net/s3.action?mgmt-aws/EP0001/CUSA05264_00/jpKmTVGn_PREVIEW_SCREENSHOT1_508698.jpg
+    re.compile("http[s]?://npmt\.mgmt\.tools\.playstation.net.*"),
+]
 
 
 class UrlType(enum.Enum):
@@ -78,6 +92,28 @@ class PsStoreJsonApiWpullPlugin(WpullPlugin):
         super().deactivate()
 
         logger.debug("deactivate()")
+
+    @hook(PluginFunctions.accept_url)
+    def my_accept_url(self, item_session: ItemSession, verdict: bool, reasons: dict) -> bool:
+
+
+        url = item_session.request.url
+
+        # go through each regex of URLs to ignore
+        # if we match against a url, we return false
+        for iter_regex in URLS_TO_SKIP_REGEX_LIST:
+
+            maybe_match = iter_regex.search(url)
+
+            logger.debug("my_accept_url(): testing url `%s` against regex `%s`, result is `%s`", url, iter_regex, maybe_match)
+
+            if maybe_match:
+
+                logger.info("my_accept_url(): ignoring the url `%s` because it matched against regex `%s`", url, iter_regex)
+
+                return False
+
+        return True
 
     @event(PluginFunctions.get_urls)
     def my_get_urls(self, item_session: ItemSession):
