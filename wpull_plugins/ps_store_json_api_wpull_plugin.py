@@ -28,6 +28,7 @@ URLS_TO_SKIP_REGEX_LIST = [
 
     # example: https://npmt.mgmt.tools.playstation.net/s3.action?mgmt-aws/EP0001/CUSA05264_00/jpKmTVGn_PREVIEW_SCREENSHOT1_508698.jpg
     re.compile("http[s]?://npmt\.mgmt\.tools\.playstation.net.*"),
+
 ]
 
 
@@ -113,7 +114,9 @@ class PsStoreJsonApiWpullPlugin(WpullPlugin):
 
                 return False
 
-        return True
+        # if it is not explicitly ignored by us, return whatever verdict wpull has for this url
+        # if we return just True, then it will infinitely retry stuff like errors
+        return verdict
 
     @event(PluginFunctions.get_urls)
     def my_get_urls(self, item_session: ItemSession):
