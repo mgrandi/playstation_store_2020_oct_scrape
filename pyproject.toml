@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "playstation_store_2020_oct_scrape"
 version = "0.1.0"
-description = ""
+description = "scrape the store.playstation.com site"
 authors = ["Mark Grandi <markgrandi@gmail.com>"]
 
 [tool.poetry.dependencies]
@@ -19,6 +19,9 @@ jmespath = "^0.10.0"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 
+[tool.poetry.scripts]
+psstore_cli = 'playstation_store_2020_oct_scrape.main:main'
+
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.masonry.api"
