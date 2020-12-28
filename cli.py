@@ -174,6 +174,14 @@ if __name__ == "__main__":
         required=True, type=isDirectoryType, help="where to store the generated cloudinit config")
     create_config_and_instances_parser.add_argument("--machine-starting-id", dest="machine_starting_id",
         required=True, type=int, help="the starting number for naming the droplets sequentially")
+    create_config_and_instances_parser.add_argument("--machine-name-prefix", dest="machine_name_prefix",
+        required=True, help="the prefix added to the name of each droplet we end up creating")
+    create_config_and_instances_parser.add_argument("--machine-username", dest="machine_username",
+        required=True, help="the username of the main user account")
+    create_config_and_instances.add_argument("--machine-password", dest="machine_password",
+        required=True, help="the password of the main user account")
+    create_config_and_instances_parser.add_argument("--ssh-key-fingerprint", dest="ssh_key_fingerprints", action="extend",
+        required=True, help="the ssh key fingerprint to use to bootstrap the digital ocean droplet, can be provided multiple times")
     create_config_and_instances_parser.set_defaults(func_to_run=create_config_and_instances.run)
 
 
