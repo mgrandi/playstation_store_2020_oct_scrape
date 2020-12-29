@@ -180,6 +180,8 @@ def main():
         required=True, help="the password of the main user account")
     create_config_and_instances_parser.add_argument("--ssh-key-fingerprint", dest="ssh_key_fingerprints", action="extend",
         required=True, help="the ssh key fingerprint to use to bootstrap the digital ocean droplet, can be provided multiple times")
+    create_config_and_instances_parser.add_argument("--dry-run", action="store_true", dest="dry_run",
+        help="if set, don't actually create any instances, but print out what we would have done")
     create_config_and_instances_parser.set_defaults(func_to_run=create_config_and_instances.run)
 
 
