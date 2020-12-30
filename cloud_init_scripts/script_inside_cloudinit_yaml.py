@@ -42,7 +42,7 @@ def main(args):
     # run the script that we downloaded
     logger.info("running python subprocess with args: `%s`", python_run_bootstrap_args)
     subprocess_result = subprocess.run(python_run_bootstrap_args, capture_output=True, check=True)
-    logger.info("subprocess completely successfully: `%s`", subprocess_result)
+    logger.info("subprocess completed successfully: `%s`", subprocess_result)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="cloudinit script that bootstraps everything else")
     parsed_args = parser.parse_args()
