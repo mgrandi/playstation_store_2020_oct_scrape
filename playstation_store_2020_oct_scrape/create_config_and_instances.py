@@ -6,6 +6,7 @@ import sys
 import random
 import pprint
 import time
+import arrow
 
 import digitalocean
 import attr
@@ -51,7 +52,7 @@ def run(args):
             main_account_password=args.main_account_password,
             download_url=args.bootstrap_script_download_url)
 
-        logger.info("getting cloudinit yaml string with args: `%s`", cloudinit_yaml_args)
+        logger.debug("getting cloud-init yaml string with args: `%s`", cloudinit_yaml_args)
 
         cloudinit_yaml_str = get_cloudinit_files.get_yaml_dictionary(cloudinit_yaml_args)
 
@@ -63,13 +64,22 @@ def run(args):
 
         machine_name ='{}-{}-{}-{}'.format(machine_name_prefix, size_slug, region_choice, machine_idx)
 
+        # write out the yaml to the output folder as a record
+        output_yaml_path = cloud_init_output_folder / f"{arrow.utcnow().timestamp}_cloud-init_{'DRY-RUN' if is_dry_run else 'LIVE'}_{machine_name}.yaml"
+
+        logger.info("writing cloud-init yaml output for droplet `%s` to `%s`", machine_name, output_yaml_path)
+
+        with open(output_yaml_path, "w", encoding="utf-8") as f:
+            f.write(cloudinit_yaml_str)
+
+
         if is_dry_run:
 
             logger.info("DRY RUN: Would have created a droplet with the name `%s`, region: `%s`, size: `%s`",
                 machine_name, region_choice, size_slug)
         else:
             try:
-
+                logger.info("LIVE RUN")
                 # to get the image slug names, run this:
                 # `doctl compute image list-distribution --public`
                 droplet = digitalocean.Droplet(

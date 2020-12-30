@@ -38,6 +38,10 @@ def get_yaml_file_string_from_dict(input_dict:dict) -> str:
     # see https://sourceforge.net/p/ruamel-yaml/tickets/371/
     yaml_dictionary._yaml_get_pre_comment().append(cloud_config_comment_token)
 
+    # TODO: maybe write the input_dict or some other identifying info to the end of line comment of the yaml
+    # so we can tell which yaml goes to which instance without decompressing the gzip script and looking at the
+    # variables
+
     # then write the commented map with the comment to the StringIO
     yaml_handle.dump(yaml_dictionary, yaml_string_io)
 
