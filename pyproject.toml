@@ -15,6 +15,7 @@ warcio = "^1.7.4"
 python-digitalocean = "^1.15.0"
 jmespath = "^0.10.0"
 "ruamel.yaml" = "^0.16.12"
+language-tags = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

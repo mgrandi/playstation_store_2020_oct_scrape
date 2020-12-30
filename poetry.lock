@@ -100,6 +100,17 @@ testing = ["coverage (<5)", "pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3
 "testing.libs" = ["demjson", "simplejson", "ujson", "yajl"]
 
 [[package]]
+name = "language-tags"
+version = "1.0.0"
+description = "This project is a Python version of the language-tags Javascript project."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "logging-tree"
 version = "1.8.1"
 description = "Introspect and display the logger tree inside \"logging\""
@@ -290,7 +301,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "d390a0a6d2d4a773b05476334fba01d917fdd325e8bef17f42e91d654dc0fcd3"
+content-hash = "3b3ce3428086f842ef8975790e9cb740871c5bcc9b8c8672a3e67fd66bc86b14"
 
 [metadata.files]
 arrow = [
@@ -333,6 +344,9 @@ jmespath = [
 jsonpickle = [
     {file = "jsonpickle-1.4.2-py2.py3-none-any.whl", hash = "sha256:2ac5863099864c63d7f0c367af5e512c94f3384977dd367f2eae5f2303f7b92c"},
     {file = "jsonpickle-1.4.2.tar.gz", hash = "sha256:c9b99b28a9e6a3043ec993552db79f4389da11afcb1d0246d93c79f4b5e64062"},
+]
+language-tags = [
+    {file = "language_tags-1.0.0.tar.gz", hash = "sha256:ac417e9120a1091c548e6d37a00f9dd32f489d93b040d028f9f5005b321c23d0"},
 ]
 logging-tree = [
     {file = "logging_tree-1.8.1-py2.py3-none-any.whl", hash = "sha256:ff588623bfc8012c3f55c7a85d18c51db86b26f7feefbc6df3cdf9842a23cdfd"},
