@@ -131,9 +131,13 @@ def get_yaml_dictionary(args:model.CloudInitYamlArgs):
     logger.debug("compressing contents of python script")
     per_once_script_compressed = gzip.compress(per_once_script_contents.encode("utf-8"))
 
+    # FIXME: apparently i cannot set the owner of the file to be any users I am creating
+    # as when `write_files` runs, it runs before users are created? lol
+    # so for now I am setting the owner/group to be `root`
+    # see https://bugs.launchpad.net/cloud-init/+bug/1486113
     write_files_dict = {
         "path": "/var/lib/cloud/scripts/per-once/wpull_per_once_bootstrap.sh",
-        "owner": f"{args.main_account_username}:{args.main_account_username}",
+        "owner": "root:root",
         "permissions": "0777",
         "encoding": "gzip",
         "content": per_once_script_compressed
