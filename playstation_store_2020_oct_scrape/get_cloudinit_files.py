@@ -135,6 +135,8 @@ def get_yaml_dictionary(args:model.CloudInitYamlArgs):
         "content": per_once_script_compressed
     }
 
+    write_files_list = [write_files_dict]
+
     top_level_dict = {
         "users": users_list,
         "chpasswd": chpasswd_dict,
@@ -142,7 +144,7 @@ def get_yaml_dictionary(args:model.CloudInitYamlArgs):
         "package_upgrade": True,
         "packages": packages_list,
         "byobu_by_default": "enable",
-        "write_files": write_files_dict
+        "write_files": write_files_list
     }
 
     final_yaml_str =  get_yaml_file_string_from_dict(top_level_dict)
