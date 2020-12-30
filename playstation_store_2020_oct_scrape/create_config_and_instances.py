@@ -9,8 +9,10 @@ import time
 
 import digitalocean
 import attr
+import language_tags.Tag
 
 from playstation_store_2020_oct_scrape import get_cloudinit_files
+from playstation_store_2020_oct_scrape import model
 
 logger = logging.getLogger(__name__)
 
@@ -18,23 +20,17 @@ SLEEP_TIME_SECONDS_BETWEEN_CREATION = 10
 
 DIGITAL_OCEAN_REGION_LIST = ["nyc1", "nyc3", "sfo2", "sfo3", "lon1", "tor1"]
 
-@attr.s
-class DropletCreationInfo:
-    region_lang = attr.ib()
-    region_country = attr.ib()
-    machine_name = attr.ib()
-    machine_idx = attr.ib()
-    droplet = attr.ib()
+
 
 def run(args):
 
-    ssh_key_fingerprints_list = args.ssh_key_fingerprints
+    language_tag_list = args.language_tag
     machine_name_prefix = args.machine_name_prefix
-    content_id_folder = args.content_id_files_folder
     starting_machine_number = args.machine_starting_id
     digital_ocean_auth_token = args.digital_ocean_token
-    cloud_init_output_folder = args.cloudinit_config_output_folder
+    cloud_init_output_folder = args.output_folder
     is_dry_run = args.dry_run
+    ssh_key_fingerprints_list = args.ssh_key_fingerprints
 
 
     logger.info("starting at id `%s`", starting_machine_number)
@@ -43,47 +39,29 @@ def run(args):
 
     # get the file listing
     # TODO: MARK FIX make this take arguments instead of looking in a folder
-    for machine_idx, iter_content_id_file in enumerate(content_id_folder.glob("*.txt"), start=starting_machine_number):
+    for machine_idx, iter_language_tag in enumerate(language_tag_list, start=starting_machine_number):
 
-        logger.info("found file `%s`", iter_content_id_file)
-
-        stem = iter_content_id_file.stem
-
-        s = stem.split("-")
-        lang = s[0]
-        country = s[1]
-
-        logger.info("-- lang: `%s`, country: `%s`", lang, country)
+        logger.info("on machine_idx: `%s`, language tag: `%s`", machine_idx, iter_language_tag)
 
         # get the yaml
-        cloudinit_yaml_str = get_cloudinit_files.get_yaml_file_string(lang, country)
+        cloudinit_yaml_args = model.CloudInitYamlArgs(
+            language_tag=iter_language_tag,
+            ssh_key_fingerprints=ssh_key_fingerprints_list,
+            main_account_username= args.main_account_username,
+            main_account_password=args.main_account_password,
+            download_url=args.bootstrap_script_download_url)
 
+        logger.info("getting cloudinit yaml string with args: `%s`", cloudinit_yaml_args)
 
-        # call basically ourselves to generate the rest of the files
+        cloudinit_yaml_str = get_cloudinit_files.get_yaml_dictionary(cloudinit_yaml_args)
 
-        subprocess_args = [sys.executable,
-            "cli.py",
-            "get_cloudinit_files",
-            "--sku-list",
-            iter_content_id_file.resolve(),
-            "--region-lang",
-            lang,
-            "--region-country",
-            country,
-            "--output-folder",
-            cloud_init_output_folder]
-
-        logger.info("-- running command `%s`", subprocess_args)
-
-        result = subprocess.run(subprocess_args, check=True)
-
-        logger.info("-- process ran successfully: `%s`", result)
+        logger.debug("yaml string: \n%s", cloudinit_yaml_str)
 
         region_choice = random.choice(DIGITAL_OCEAN_REGION_LIST)
 
         size_slug = "s-1vcpu-2gb"
 
-        machine_name ='MINION2-{}-{}-{}'.format(size_slug, region_choice, machine_idx)
+        machine_name ='{}-{}-{}-{}'.format(machine_name_prefix, size_slug, region_choice, machine_idx)
 
         if is_dry_run:
 
@@ -91,11 +69,14 @@ def run(args):
                 machine_name, region_choice, size_slug)
         else:
             try:
+
+                # to get the image slug names, run this:
+                # `doctl compute image list-distribution --public`
                 droplet = digitalocean.Droplet(
                     token=digital_ocean_auth_token,
                     name=machine_name,
                     region=region_choice,
-                    image='ubuntu-20-04-x64', # Ubuntu 20.04 x64
+                    image='ubuntu-20-10-x64', # Ubuntu 20.10 x64
                     size_slug='s-1vcpu-2gb',  # 2GB RAM, 1 vCPU
                     backups=False,
                     ipv6=True,
@@ -111,9 +92,8 @@ def run(args):
 
                 logger.info("-- droplet created: `%s`", droplet)
 
-                info = DropletCreationInfo(
-                    region_lang=lang,
-                    region_country=country,
+                info = model.DropletCreationInfo(
+                    language_tag=iter_language_tag,
                     machine_name=machine_name,
                     machine_idx=machine_idx,
                     droplet=droplet,)

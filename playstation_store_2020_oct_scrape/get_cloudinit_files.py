@@ -1,14 +1,18 @@
-
 import logging
 
 import attr
 import ruamel.yaml
 import io
 import pathlib
+import gzip
 
 logger = logging.getLogger(__name__)
 
+from playstation_store_2020_oct_scrape import model
 
+REPLACEMENT_STR_LANGUAGE = "___REGION_LANG___"
+REPLACEMENT_STR_COUNTRY = "___REGION_COUNTRY___"
+REPLACEMENT_STR_DOWNLOAD_URL = "___DOWNLOAD_URL___"
 
 def get_yaml_file_string_from_dict(input_dict:dict) -> str:
 
@@ -39,7 +43,9 @@ def get_yaml_file_string_from_dict(input_dict:dict) -> str:
 
     return yaml_string_io.getvalue()
 
-def get_yaml_dictionary(args):
+def get_yaml_dictionary(args:model.CloudInitYamlArgs):
+
+    logger.debug("creating yaml dictionary from CloudInitYamlArgs: `%s`", args)
 
     # you provide the string 'default' , then define other users in the following dictionaries
     # see https://cloudinit.readthedocs.io/en/latest/topics/modules.html#users-and-groups
@@ -93,20 +99,40 @@ def get_yaml_dictionary(args):
     # this file is: `playstation_store_2020_oct_scrape/playstation_store_2020_oct_scrape/get_cloudinit_files.py
     # file we want is `playstation_store_2020_oct_scrape/cloud_init_scripts/script_inside_cloudinit_yaml.py`
 
-    per_once_script_contents_path = pathlib.Path(__file__).parent / "../cloud_init_scripts/script_inside_cloudinit_yaml.py".resolve()
-    logger.info("loading yaml content template from `%s`", per_once_script_contents_path)
+    per_once_script_contents_path = pathlib.Path(__file__).parent.joinpath("..", "cloud_init_scripts", "script_inside_cloudinit_yaml.py").resolve()
+    logger.debug("loading yaml content template from `%s`", per_once_script_contents_path)
 
     per_once_script_contents = None
     with open(per_once_script_contents_path, "r", encoding="utf-8") as f:
         per_once_script_contents = f.read()
 
+    # now replace the values in the script that we will be embedding in the cloud-init YAML
+
+    logger.debug("replacing marker values with their real values")
+    # NOTE: I call it 'country' when the library calls its 'region', whoops
+    # NOTE: also: you have to convert it to  string, `language_tags.Tag.Tag.region` for example returns a
+    # `language_tags.Subtag.Subtag` unless you convert it
+    tmp_country = str(args.language_tag.region).lower()
+    tmp_lang = str(args.language_tag.language).lower()
+    per_once_script_contents = per_once_script_contents.replace(REPLACEMENT_STR_COUNTRY, tmp_country)
+    per_once_script_contents = per_once_script_contents.replace(REPLACEMENT_STR_LANGUAGE, tmp_lang)
+    per_once_script_contents = per_once_script_contents.replace(REPLACEMENT_STR_DOWNLOAD_URL, args.download_url)
+
+
+    # in order to make this easier to test, lets compress the contents with gzip
+    # can either do `gzip.compress()` or use the `gzip.GzipFile` with a fileobj on a io.BytesIO
+    # but according to the examples, we should use a gzip file rather than a raw zlib compressed
+    # stream i guess
+    # see https://cloudinit.readthedocs.io/en/latest/topics/modules.html#write-files
+    logger.debug("compressing contents of python script")
+    per_once_script_compressed = gzip.compress(per_once_script_contents.encode("utf-8"))
 
     write_files_dict = {
         "path": "/var/lib/cloud/scripts/per-once/wpull_per_once_bootstrap.sh",
         "owner": f"{args.main_account_username}:{args.main_account_username}",
-        "permissions": "777",
-        "content": per_once_script_contents
-
+        "permissions": "0777",
+        "encoding": "gzip",
+        "content": per_once_script_compressed
     }
 
     top_level_dict = {
@@ -119,61 +145,6 @@ def get_yaml_dictionary(args):
         "write_files": write_files_dict
     }
 
-
-def get_cloudinit_files(args):
-
-    lang_code = args.region_lang
-    country_code = args.region_country
-
-    wget_at_url_list_filepath = args.output_folder / "wget_at-url_list_{}-{}.txt".format(lang_code, country_code)
-    cloud_init_yaml_filepath = args.output_folder / "cloud_init_{}-{}.yaml".format(lang_code, country_code)
-    args_file_filepath = args.output_folder / "wget_at_args_{}-{}.sh".format(lang_code, country_code)
-
-    # write the url list for wget-at
-    # sku_list = []
-    # with open(args.sku_list, "r", encoding="utf-8") as f:
-
-    #     while True:
-    #         iter_sku = f.readline()
-
-    #         if not iter_sku:
-    #             break
-    #         else:
-    #             sku_list.append(iter_sku.strip())
-
-    # # set newline or else when read on linux it freaks out
-    # with open(wget_at_url_list_filepath, "w", encoding="utf-8", newline="\n") as f:
-
-    #     for iter_sku in sku_list:
-
-    #         f.write(URL_BASE.format(lang_code, country_code, iter_sku) + "\n")
-
-
-    # logger.info("url list written to `%s`", wget_at_url_list_filepath)
-
-
-    # # write the arguments file
-    # # set newline or else when read on linux it freaks out
-    # with open(args_file_filepath, "w", encoding="utf-8", newline="\n") as f:
-
-    #     output = ARGUMENTS_BASE.format(lang_code, country_code, lang_code, country_code, REJECT_REGEX)
-
-    #     f.write(output)
-
-    # logger.info("args file written to `%s`", args_file_filepath)
-
-
-    # write the YAML cloud init file
-    # set newline or else when read on linux it freaks out
-    with open(cloud_init_yaml_filepath, "w", encoding="utf-8", newline="\n") as f:
-
-        yaml_output = get_yaml_file_string_from_dict(get_yaml_dictionary(args))
-
-        f.write(yaml_output)
-
-    logger.info("cloud init YAML file written to `%s`", cloud_init_yaml_filepath)
-
-
-
-
-
+    final_yaml_str =  get_yaml_file_string_from_dict(top_level_dict)
+    logger.debug("final yaml document string created")
+    return final_yaml_str

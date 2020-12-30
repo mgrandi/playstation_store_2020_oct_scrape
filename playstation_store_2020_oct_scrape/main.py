@@ -11,6 +11,7 @@ import requests  # requests must be imported after capture_http
 import arrow
 import attr
 import logging_tree
+import language_tags
 
 # self imports
 from playstation_store_2020_oct_scrape import scrape
@@ -117,6 +118,15 @@ def isDirectoryType(filePath):
 
     return path_resolved
 
+def ietf_language_tag_type(input_language_tag) -> language_tags.Tag.Tag:
+
+    check_result = language_tags.tags.check(input_language_tag)
+
+    if not check_result:
+        raise argparse.ArgumentTypeError("the language tag passed in did not validate: `{}`".format(input_language_tag))
+
+    return language_tags.tags.tag(input_language_tag)
+
 def main():
     # if we are being run as a real program
 
@@ -156,20 +166,9 @@ def main():
 
 
 
-    cloudinit_parser = subparsers.add_parser("get_cloudinit_files", help="get files for cloudinit")
-    cloudinit_parser.add_argument("--sku-list", dest="sku_list", required=True, help="newline delimited list of skus")
-    cloudinit_parser.add_argument("--region-lang", dest="region_lang", required=True, help="the first part of a region code, aka the `en` in `en-US`")
-    cloudinit_parser.add_argument("--region-country", dest="region_country", required=True, help="the second part of a region code, aka the `us` in `en-US`")
-    cloudinit_parser.add_argument("--output-folder", dest="output_folder", required=True, type=isDirectoryType, help="where to store the resulting files")
-    cloudinit_parser.set_defaults(func_to_run=get_cloudinit_files.get_cloudinit_files)
-
 
     create_config_and_instances_parser = subparsers.add_parser("create_config_and_instances", help="given a list of content-id files , create the config and then create DO instances")
     create_config_and_instances_parser.add_argument("--digital-ocean-token", dest="digital_ocean_token", required=True,  help="the token to login to the DO API")
-    create_config_and_instances_parser.add_argument("--content-id-files-folder", dest="content_id_files_folder", required=True, type=isDirectoryType,
-        help="the folder of the `en-us.txt` like files that have the list of content ids")
-    create_config_and_instances_parser.add_argument("--cloudinit-config-output-folder", dest="cloudinit_config_output_folder",
-        required=True, type=isDirectoryType, help="where to store the generated cloudinit config")
     create_config_and_instances_parser.add_argument("--machine-starting-id", dest="machine_starting_id",
         required=True, type=int, help="the starting number for naming the droplets sequentially")
     create_config_and_instances_parser.add_argument("--machine-name-prefix", dest="machine_name_prefix",
@@ -178,10 +177,15 @@ def main():
         required=True, help="the username of the main user account")
     create_config_and_instances_parser.add_argument("--main-account-password", dest="main_account_password",
         required=True, help="the password of the main user account")
-    create_config_and_instances_parser.add_argument("--ssh-key-fingerprint", dest="ssh_key_fingerprints", action="extend",
+    create_config_and_instances_parser.add_argument("--ssh-key-fingerprint", dest="ssh_key_fingerprints", action="append",
         required=True, help="the ssh key fingerprint to use to bootstrap the digital ocean droplet, can be provided multiple times")
     create_config_and_instances_parser.add_argument("--dry-run", action="store_true", dest="dry_run",
         help="if set, don't actually create any instances, but print out what we would have done")
+    create_config_and_instances_parser.add_argument("--language-tag", dest="language_tag", required=True, type=ietf_language_tag_type, action="append",
+        help="the IETF language tag, like `en-us` with the hyphen in the middle. Can be repeated")
+    create_config_and_instances_parser.add_argument("--bootstrap-script-download-url", dest="bootstrap_script_download_url", required=True,
+        help="the file tht we will put in the script (that is embedded in the cloud-init yaml) to start the wpull scrape")
+    create_config_and_instances_parser.add_argument("--output-folder", dest="output_folder", required=True, type=isDirectoryType, help="where to store the resulting files")
     create_config_and_instances_parser.set_defaults(func_to_run=create_config_and_instances.run)
 
 
