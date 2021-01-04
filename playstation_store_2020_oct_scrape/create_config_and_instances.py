@@ -82,12 +82,14 @@ def run(args):
                 logger.info("LIVE RUN")
                 # to get the image slug names, run this:
                 # `doctl compute image list-distribution --public`
+                # to get the size_slug names, run this:
+                # `doctl compute size list`
                 droplet = digitalocean.Droplet(
                     token=digital_ocean_auth_token,
                     name=machine_name,
                     region=region_choice,
                     image='ubuntu-20-10-x64', # Ubuntu 20.10 x64
-                    size_slug='s-1vcpu-2gb',  # 2GB RAM, 1 vCPU
+                    size_slug='s-1vcpu-1gb',  # 1GB RAM, 1 vCPU
                     backups=False,
                     ipv6=True,
                     monitoring=False,

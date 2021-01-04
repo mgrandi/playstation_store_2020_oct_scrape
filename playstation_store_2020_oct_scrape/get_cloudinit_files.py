@@ -136,7 +136,7 @@ def get_yaml_dictionary(args:model.CloudInitYamlArgs):
     # so for now I am setting the owner/group to be `root`
     # see https://bugs.launchpad.net/cloud-init/+bug/1486113
     write_files_dict = {
-        "path": "/var/lib/cloud/scripts/per-once/wpull_per_once_bootstrap.sh",
+        "path": "/var/lib/cloud/scripts/per-once/wpull_per_once_bootstrap.py",
         "owner": "root:root",
         "permissions": "0777",
         "encoding": "gzip",
