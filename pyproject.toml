@@ -4,6 +4,13 @@ version = "0.1.0"
 description = "scrape the store.playstation.com site"
 authors = ["Mark Grandi <markgrandi@gmail.com>"]
 
+# make sure the wpull plugins + cloud init scripts are included in the wheel
+# (and therefore the PEX)
+include = [
+    "wpull_plugins/ps_store_json_api_wpull_plugin.py",
+    "cloud_init_scripts/bootstrap_wpull.py",
+    "cloud_init_scripts/script_inside_cloudinit_yaml.py"]
+
 [tool.poetry.dependencies]
 python = "^3.8"
 arrow = "^0.17.0"
