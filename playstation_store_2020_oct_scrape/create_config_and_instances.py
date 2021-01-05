@@ -32,6 +32,7 @@ def run(args):
     cloud_init_output_folder = args.output_folder
     is_dry_run = args.dry_run
     ssh_key_fingerprints_list = args.ssh_key_fingerprints
+    droplet_tag_list = args.tags
 
 
     logger.info("starting at id `%s`", starting_machine_number)
@@ -72,19 +73,19 @@ def run(args):
         with open(output_yaml_path, "w", encoding="utf-8") as f:
             f.write(cloudinit_yaml_str)
 
-
         if is_dry_run:
 
             logger.info("DRY RUN: Would have created a droplet with the name `%s`, region: `%s`, size: `%s`",
                 machine_name, region_choice, size_slug)
         else:
             try:
+
                 logger.info("LIVE RUN")
                 # to get the image slug names, run this:
                 # `doctl compute image list-distribution --public`
                 # to get the size_slug names, run this:
                 # `doctl compute size list`
-                droplet = digitalocean.Droplet(
+                droplet_args = model.DropletCreationArgs(
                     token=digital_ocean_auth_token,
                     name=machine_name,
                     region=region_choice,
@@ -94,11 +95,16 @@ def run(args):
                     ipv6=True,
                     monitoring=False,
                     ssh_keys=ssh_key_fingerprints_list,
-                    user_data=cloudinit_yaml_str)
+                    user_data=cloudinit_yaml_str,
+                    tags=droplet_tag_list)
 
                 logger.info("about to create the droplet `%s`, but sleeping for `%s` seconds first. ctrl+c if you don't want this",
-                    droplet, SLEEP_TIME_SECONDS_BETWEEN_CREATION)
+                    droplet_args, SLEEP_TIME_SECONDS_BETWEEN_CREATION)
                 time.sleep(SLEEP_TIME_SECONDS_BETWEEN_CREATION)
+
+                # convert the DropletCreationArgs to a dict, and then pass it as kwargs to
+                # `digitalocean.Droplet`
+                droplet = digitalocean.Droplet(**attr.asdict(droplet_args))
 
                 droplet.create()
 
@@ -106,9 +112,9 @@ def run(args):
 
                 info = model.DropletCreationInfo(
                     language_tag=iter_language_tag,
-                    machine_name=machine_name,
                     machine_idx=machine_idx,
-                    droplet=droplet,)
+                    droplet=droplet,
+                    droplet_arguments=droplet_args)
 
                 created_droplets.append(info)
 

@@ -185,7 +185,10 @@ def main():
         help="the IETF language tag, like `en-us` with the hyphen in the middle. Can be repeated")
     create_config_and_instances_parser.add_argument("--bootstrap-script-download-url", dest="bootstrap_script_download_url", required=True,
         help="the file tht we will put in the script (that is embedded in the cloud-init yaml) to start the wpull scrape")
-    create_config_and_instances_parser.add_argument("--output-folder", dest="output_folder", required=True, type=isDirectoryType, help="where to store the resulting files")
+    create_config_and_instances_parser.add_argument("--output-folder", dest="output_folder", required=True, type=isDirectoryType,
+        help="where to store the resulting files")
+    create_config_and_instances_parser.add_argument("--tags", action="append",
+        help="Any tags you want to add to your droplet. Can be specified multipme times", default=[])
     create_config_and_instances_parser.set_defaults(func_to_run=create_config_and_instances.run)
 
 
