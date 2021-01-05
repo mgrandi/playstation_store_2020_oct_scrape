@@ -6,6 +6,10 @@ import subprocess
 import pathlib
 import urllib.request
 logger = logging.getLogger("script_inside_cloudinit_yaml.py")
+# the string contents get replaced by the script that generates the cloud-init yaml
+REGION_LANG = "___REGION_LANG___"
+REGION_COUNTRY = "___REGION_COUNTRY___"
+DOWNLOAD_URL = "___DOWNLOAD_URL___"
 def download_script(url, path):
     logger.info("downloading `%s` to `%s`", url, path)
     response = urllib.request.urlopen(url)
@@ -18,10 +22,6 @@ def download_script(url, path):
             f.write(chunk)
     logger.info("download complete")
 def main(args):
-    # the string contents get replaced by the script that generates the cloud-init yaml
-    REGION_LANG = "___REGION_LANG___"
-    REGION_COUNTRY = "___REGION_COUNTRY___"
-    DOWNLOAD_URL = "___DOWNLOAD_URL___"
     root_folder = pathlib.Path("~/psstore").expanduser().resolve()
     root_folder.mkdir(exist_ok=True)
     bootstrap_script_path = root_folder / "bootstrap_wpull.py"
@@ -56,8 +56,9 @@ if __name__ == "__main__":
     parsed_args = parser.parse_args()
     # setup logging stuff
     root_logger = logging.getLogger()
+    logging_formatter = logging.Formatter("%(asctime)s %(threadName)-10s %(name)-20s %(levelname)-8s: %(message)s")
     root_logger.setLevel("INFO")
-    log_path = pathlib.Path(f"~/script_inside_cloudinit_yaml - {parsed_args.region_lang}-{parsed_args.region_country} - output.log").expanduser().resolve()
+    log_path = pathlib.Path(f"~/script_inside_cloudinit_yaml - {REGION_LANG}-{REGION_COUNTRY} - output.log").expanduser().resolve()
     # file handler
     file_handler = logging.FileHandler(log_path, encoding="utf-8")
     file_handler.setFormatter(logging_formatter)
