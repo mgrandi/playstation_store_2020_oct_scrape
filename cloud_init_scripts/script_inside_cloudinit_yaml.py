@@ -58,7 +58,13 @@ if __name__ == "__main__":
     root_logger = logging.getLogger()
     logging_formatter = logging.Formatter("%(asctime)s %(threadName)-10s %(name)-20s %(levelname)-8s: %(message)s")
     root_logger.setLevel("INFO")
-    log_path = pathlib.Path(f"~/script_inside_cloudinit_yaml - {REGION_LANG}-{REGION_COUNTRY} - output.log").expanduser().resolve()
+    # this folder should match what bootstrap_wpull creates
+    # create output folder
+    root_folder = pathlib.Path("~/psstore").expanduser().resolve()
+    root_folder.mkdir(exist_ok=True)
+    output_folder = root_folder / f"{REGION_LANG}-{REGION_COUNTRY}_python38_pex"
+    output_folder.mkdir(exist_ok=True)
+    log_path = output_folder / f"script_inside_cloudinit_yaml - {REGION_LANG}-{REGION_COUNTRY} - output.log"
     # file handler
     file_handler = logging.FileHandler(log_path, encoding="utf-8")
     file_handler.setFormatter(logging_formatter)

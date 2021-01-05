@@ -15,6 +15,7 @@ PSSTORE_2020_OCT_SCRAPE_PEX_DOWNLOAD_URL = "http://kramidnarg.com/playstation_st
 PSSTORE_CONTENT_IDS_DOWNLOAD_URL = "https://github.com/mgrandi/playstation_content_ids/archive/master.zip"
 FOLDER_INSIDE_PSSTORECONTENT_IDS_ZIP = "playstation_content_ids-master"
 PSSTORE_2020_OCT_SCRAPE_PEX_DEPS_FOLDER_PREFIX = "playstation_store_2020_oct_scrape"
+ROOT_FOLDER_PATH_STR = "~/psstore"
 
 def download_file(url, path):
     logger.info("downloading `%s` to `%s`", url, path)
@@ -33,7 +34,7 @@ def main(args):
     logger.info("####################################")
     logger.info("starting, with arguments `%s`", args)
 
-    root_folder = pathlib.Path("~/psstore").expanduser().resolve()
+    root_folder = pathlib.Path(ROOT_FOLDER_PATH_STR).expanduser().resolve()
     root_folder.mkdir(exist_ok=True)
     temp_dir = root_folder / "temp"
     temp_dir.mkdir(exist_ok=True)
@@ -238,7 +239,18 @@ if __name__ == "__main__":
 
     parsed_args = parser.parse_args()
 
-    log_path = pathlib.Path(f"~/bootstrap_wpull - {parsed_args.region_lang}-{parsed_args.region_country} - output.log").expanduser().resolve()
+    #############
+    # duplicated code, the main() method also needs the 'output' folder so we create a reference to it
+    # in that method too
+    country = parsed_args.region_country
+    lang = parsed_args.region_lang
+    # create output folder
+    root_folder = pathlib.Path(ROOT_FOLDER_PATH_STR).expanduser().resolve()
+    output_folder = root_folder / f"{lang}-{country}_python38_pex"
+    output_folder.mkdir(exist_ok=True)
+    #############
+
+    log_path = output_folder / f"bootstrap_wpull - {parsed_args.region_lang}-{parsed_args.region_country} - output.log"
 
     # file handler
     file_handler = logging.FileHandler(log_path, encoding="utf-8")
