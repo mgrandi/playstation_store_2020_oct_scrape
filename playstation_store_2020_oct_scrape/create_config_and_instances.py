@@ -32,7 +32,7 @@ def run(args):
     cloud_init_output_folder = args.output_folder
     is_dry_run = args.dry_run
     ssh_key_fingerprints_list = args.ssh_key_fingerprints
-    droplet_tag_list = args.tags
+    droplet_tag_list = args.tag
 
 
     logger.info("starting at id `%s`", starting_machine_number)
