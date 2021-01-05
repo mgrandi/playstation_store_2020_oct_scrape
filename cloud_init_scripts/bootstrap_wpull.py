@@ -10,7 +10,7 @@ import datetime
 
 logger = logging.getLogger("bootstrap_wpull.py")
 
-WPULL_PEX_DOWNLOAD_URL = "http://kramidnarg.com/wpull-2.0.4a0_mgrandi.pex"
+WPULL_PEX_DOWNLOAD_URL = "http://kramidnarg.com/wpull-2.0.4a1_mgrandi.pex"
 PSSTORE_2020_OCT_SCRAPE_PEX_DOWNLOAD_URL = "http://kramidnarg.com/playstation_store_2020_oct_scrape-0.1.pex"
 PSSTORE_CONTENT_IDS_DOWNLOAD_URL = "https://github.com/mgrandi/playstation_content_ids/archive/master.zip"
 FOLDER_INSIDE_PSSTORECONTENT_IDS_ZIP = "playstation_content_ids-master"
