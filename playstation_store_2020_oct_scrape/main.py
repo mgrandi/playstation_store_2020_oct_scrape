@@ -252,6 +252,7 @@ def main():
         else:
             root_logger.setLevel("INFO")
 
+        root_logger.info("########### STARTING ###########")
 
         root_logger.debug("Parsed arguments: %s", parsed_args)
         root_logger.debug("Logger hierarchy:\n%s", logging_tree.format.build_description(node=None))
