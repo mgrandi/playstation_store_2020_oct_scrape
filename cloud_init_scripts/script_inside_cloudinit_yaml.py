@@ -5,8 +5,7 @@ import sys
 import subprocess
 import pathlib
 import urllib.request
-logging.basicConfig(level="INFO")
-logger = logging.getLogger()
+logger = logging.getLogger("script_inside_cloudinit_yaml.py")
 def download_script(url, path):
     logger.info("downloading `%s` to `%s`", url, path)
     response = urllib.request.urlopen(url)
@@ -47,10 +46,26 @@ def main(args):
         logger.error("error calling the python script we downloaded. Exception: `%s`, output: `%s`, stderr: `%s`",
             e, e.output, e.stderr)
         raise e
-    logger.info("subprocess completed successfully: `%s`", subprocess_result)
+    # `output` only exists on CalledProcessError ? lol, you have to use `stdout`
+    logger.info("---------------------------")
+    logger.info("subprocess completed successfully: \n\n`%s`", subprocess_result.stdout.decode("utf-8"))
+    logger.info("---------------------------")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="cloudinit script that bootstraps everything else")
     parsed_args = parser.parse_args()
+    # setup logging stuff
+    root_logger = logging.getLogger()
+    root_logger.setLevel("INFO")
+    log_path = pathlib.Path(f"~/script_inside_cloudinit_yaml - {parsed_args.region_lang}-{parsed_args.region_country} - output.log").expanduser().resolve()
+    # file handler
+    file_handler = logging.FileHandler(log_path, encoding="utf-8")
+    file_handler.setFormatter(logging_formatter)
+    root_logger.addHandler(file_handler)
+    # stdout handler
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setFormatter(logging_formatter)
+    root_logger.addHandler(stdout_handler)
     try:
         main(parsed_args)
     except Exception as e:
