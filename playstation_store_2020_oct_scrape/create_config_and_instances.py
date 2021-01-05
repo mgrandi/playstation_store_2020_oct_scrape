@@ -17,7 +17,7 @@ from playstation_store_2020_oct_scrape import model
 
 logger = logging.getLogger(__name__)
 
-SLEEP_TIME_SECONDS_BETWEEN_CREATION = 10
+SLEEP_TIME_SECONDS_BETWEEN_CREATION = 20
 
 DIGITAL_OCEAN_REGION_LIST = ["nyc1", "nyc3", "sfo2", "sfo3", "lon1", "tor1"]
 
