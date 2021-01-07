@@ -66,7 +66,7 @@ def get_yaml_dictionary(args:model.CloudInitYamlArgs):
 
     # see https://cloudinit.readthedocs.io/en/latest/topics/modules.html#set-passwords
     chpasswd_dict = {
-        "list": [f"{args.main_account_username}{args.main_account_password}"],
+        "list": [f"{args.main_account_username}:{args.main_account_password}"],
         "expire": False
     }
 
