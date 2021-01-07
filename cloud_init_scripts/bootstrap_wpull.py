@@ -16,6 +16,46 @@ PSSTORE_CONTENT_IDS_DOWNLOAD_URL = "https://github.com/mgrandi/playstation_conte
 FOLDER_INSIDE_PSSTORECONTENT_IDS_ZIP = "playstation_content_ids-master"
 PSSTORE_2020_OCT_SCRAPE_PEX_DEPS_FOLDER_PREFIX = "playstation_store_2020_oct_scrape"
 ROOT_FOLDER_PATH_STR = "~/psstore"
+# see wpull\build\lib\wpull\errors.py:ExitStatus
+#
+# Attributes:
+#
+# generic_error (1): An unclassified serious or fatal error occurred.
+# parser_error (2): A local document or configuration file could not
+#     be parsed.
+# file_io_error (3): A problem with reading/writing a file occurred.
+# network_failure (4): A problem with the network occurred such as a DNS
+#     resolver error or a connection was refused.
+# ssl_verification_error (5): A server's SSL/TLS certificate was invalid.
+# authentication_failure (6): A problem with a username or password.
+# protocol_error (7): A problem with communicating with a server
+#     occurred.
+# server_error (8): The server had problems fulfilling our requests.
+ACCEPTABLE_STATUS_CODES_NORMAL = [0]
+ACCEPTABLE_STATUS_CODES_WPULL = [0, 4, 5, 8]
+
+def check_completedprocess_for_acceptable_statuscodes(
+    completed_process_obj:subprocess.CompletedProcess,
+    acceptable_status_codes:typing.Sequence[int]):
+    ''' sees if a `subprocess.CompletedProcess` object has an acceptable status code
+    if not, we call subprocess.CompletedProcess.check_returncode() which will throw an exception
+
+    @param completed_process_obj - the subprocess.CompletedProcess object to check
+    @param acceptable_status_codes - the list of integers of acceptable status codes
+    @throws `subprocess.CalledProcessError` if the status code is not in the acceptable list
+    '''
+
+    logger.debug("checking return code: acceptable: `%s`, CompletedProcess return code: `%s`",
+        completed_process_obj.returncode, acceptable_status_codes)
+
+    # throw an exception if the status code is not in our acceptble list
+    # this assumes that 0 is always a valid status code, since `check_returncode()` won't
+    # throw an exception if the status code is 0
+    if not completed_process_obj.returncode in acceptable_status_codes:
+        completed_process_obj.check_returncode()
+
+
+
 
 def download_file(url, path):
     logger.info("downloading `%s` to `%s`", url, path)
@@ -98,7 +138,10 @@ def main(args):
     logger.info("full arguments for generating the wpull url list: `%s`", create_wpull_url_list_arguments)
 
     try:
-        create_wpull_url_list_result = subprocess.run(create_wpull_url_list_arguments, capture_output=True, check=True)
+        # don't use `check=True` cause we need to check the status codes , and subprocess.run() doesn't have a built in
+        # mechanism to do that
+        create_wpull_url_list_result = subprocess.run(create_wpull_url_list_arguments, capture_output=True)
+        check_completedprocess_for_acceptable_statuscodes(create_wpull_url_list_result, ACCEPTABLE_STATUS_CODES_NORMAL)
     except subprocess.CalledProcessError as e:
         logger.error("error generating the wpull url list: Exception: `%s`, output: `%s`, stderr: `%s`",
             e, e.output, e.stderr)
@@ -204,11 +247,16 @@ def main(args):
 
 
     try:
-        wpull_result = subprocess.run(wpull_argument_list, capture_output=True, check=True)
+        # don't use `check=True` cause we need to check the status codes , and subprocess.run() doesn't have a built in
+        # mechanism to do that
+        wpull_result = subprocess.run(wpull_argument_list, capture_output=True)
+        check_completedprocess_for_acceptable_statuscodes(wpull_result, ACCEPTABLE_STATUS_CODES_WPULL)
     except subprocess.CalledProcessError as e:
         logger.error("error running wpull: Exception: `%s`, output: `%s`, stderr: `%s`",
             e, e.output, e.stderr)
-    logger.info("wpull command completed successfully , output of running command: \n\n`%s`", create_wpull_url_list_result.stdout.decode("utf-8"))
+        raise e
+
+    logger.info("wpull command completed successfully , output of running command: \n\n`%s`", wpull_result.stdout.decode("utf-8"))
 
 
     logger.info("####################################")
@@ -268,7 +316,6 @@ if __name__ == "__main__":
         root_logger.setLevel("DEBUG")
     else:
         root_logger.setLevel("INFO")
-
 
     try:
 
