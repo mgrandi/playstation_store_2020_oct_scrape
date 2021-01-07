@@ -26,7 +26,8 @@ def create_rsync_command_list(parsed_args, droplet, destination_folder):
         "--itemize-changes",
         "--recursive",
         "--checksum",
-        "--partial"
+        "--partial",
+        "--verbose"
         ]
 
     # if we are removing source files
@@ -86,7 +87,7 @@ def run(args):
             name_regex_obj, iter_droplet, search_res)
 
         if search_res:
-            logger.debug("droplet `%s` matched")
+            logger.debug("droplet `%s` matched", name)
             matched_droplets.append(iter_droplet)
 
     logger.info("`%s` droplets matched our regex", len(matched_droplets))
@@ -122,10 +123,10 @@ def run(args):
         try:
 
             logger.info("starting rsync command to transfer files from the droplet `%s` to `%s`", iter_droplet.name, dest_folder )
-            command_result = subprocess.check_output(rsync_cmd)
+            command_result = subprocess.run(rsync_cmd, check=True, capture_output=True)
 
             if logger.isEnabledFor(logging.DEBUG):
-                logger.debug("rsync command for droplet `%s` succeeded: `%s`", iter_droplet, command_result)
+                logger.debug("rsync command for droplet `%s` succeeded: \n\n`%s`", iter_droplet, command_result.stdout.decode("utf-8"))
             else:
                 logger.info("rsync command for droplet `%s` succeeded", iter_droplet.name)
 
