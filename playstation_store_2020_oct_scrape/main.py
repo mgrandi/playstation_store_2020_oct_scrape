@@ -202,7 +202,8 @@ def main():
     rsync_files_parser.add_argument("--destination-folder", dest="destination_folder", type=isDirectoryType, help="where to tell rsync to store the files in, a folder will be created per droplet name")
     rsync_files_parser.add_argument("--remove-source-files", dest="remove_source_files", action="store_true",
         help="if set, will instruct rsync to remove the files after transfer (but leave folders, see the rsync docs for `--remove-source-files`")
-
+    rsync_files_parser.add_argument("--rsync-filter", dest="rsync_filters_list", action="append",
+        help="pass in --filter arguments to rsync, to control what files get transferred. Can be specified multiple times")
     rsync_files_parser.set_defaults(func_to_run=rsync_files_from_droplets.run)
 
     log_reader_parser = subparsers.add_parser("get_errored_items_from_log", help="Given a warcio scrape log file, output the IDs that failed to download")
