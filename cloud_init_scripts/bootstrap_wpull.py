@@ -118,11 +118,15 @@ def main(args):
     output_folder.mkdir(exist_ok=True)
 
     # create the arguments for generating the wpull url list
+    # need to use the ORIGINAL language and country strings, that is what the SKU lists are named after
+    # so lang will be technically `language-script` here if the language tag has a script, else its just `language`
     sku_list_path = root_folder / FOLDER_INSIDE_PSSTORECONTENT_IDS_ZIP / "regions" / f"{lang}-{country}.txt.xz"
     wpull_url_list_path = output_folder / f"wpull_urls_{lang}-{country}.txt"
 
     logger.info("constructed the path to the SKU / content ID list to be `%s`", sku_list_path)
 
+    # for the arguments here, we use the normalized language / region strings, as the playstation api
+    # doesn't handle language tags with a script, so zh-hans-cn is just /zh/cn/ on the playstation api i guess
     create_wpull_url_list_arguments = [
         sys.executable,
         psstore_oct_scrape_pex_path,
@@ -146,6 +150,7 @@ def main(args):
     except subprocess.CalledProcessError as e:
         logger.error("error generating the wpull url list: Exception: `%s`, output: `%s`, stderr: `%s`",
             e, e.output, e.stderr)
+        raise e
     logger.info("creation of wpull url list successful, output of running command: \n\n`%s`", create_wpull_url_list_result.stdout.decode("utf-8"))
 
     # now generate the arguments file and run wpull

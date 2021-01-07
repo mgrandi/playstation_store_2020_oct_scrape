@@ -117,7 +117,12 @@ def get_yaml_dictionary(args:model.CloudInitYamlArgs):
     # NOTE: also: you have to convert it to  string, `language_tags.Tag.Tag.region` for example returns a
     # `language_tags.Subtag.Subtag` unless you convert it
     tmp_country = str(args.language_tag.region).lower()
-    tmp_lang = str(args.language_tag.language).lower()
+    tmp_lang = None
+    # handle language tags with a script, like `zh-hans-cn`
+    if args.language_tag.script:
+        tmp_lang = f"{args.language_tag.language}-{args.language_tag.script}".lower()
+    else:
+        tmp_lang = str(args.language_tag.language)
     per_once_script_contents = per_once_script_contents.replace(REPLACEMENT_STR_COUNTRY, tmp_country)
     per_once_script_contents = per_once_script_contents.replace(REPLACEMENT_STR_LANGUAGE, tmp_lang)
     per_once_script_contents = per_once_script_contents.replace(REPLACEMENT_STR_DOWNLOAD_URL, args.download_url)
