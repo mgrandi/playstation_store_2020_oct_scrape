@@ -63,7 +63,7 @@ def run(args):
 
         size_slug = "s-1vcpu-2gb"
 
-        machine_name ='{}-{}-{}-{}'.format(machine_name_prefix, size_slug, region_choice, machine_idx)
+        machine_name ='{}-{}-{}-{:03d}'.format(machine_name_prefix, size_slug, region_choice, machine_idx)
 
         # write out the yaml to the output folder as a record
         output_yaml_path = cloud_init_output_folder / f"{arrow.utcnow().timestamp}_cloud-init_{'DRY-RUN' if is_dry_run else 'LIVE'}_{machine_name}.yaml"
