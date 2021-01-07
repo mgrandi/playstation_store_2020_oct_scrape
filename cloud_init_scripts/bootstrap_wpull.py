@@ -7,6 +7,7 @@ import pathlib
 import zipfile
 import urllib.request
 import datetime
+import typing
 
 logger = logging.getLogger("bootstrap_wpull.py")
 
