@@ -47,7 +47,7 @@ def check_completedprocess_for_acceptable_statuscodes(
     '''
 
     logger.debug("checking return code: acceptable: `%s`, CompletedProcess return code: `%s`",
-        completed_process_obj.returncode, acceptable_status_codes)
+        acceptable_status_codes, completed_process_obj.returncode)
 
     # throw an exception if the status code is not in our acceptble list
     # this assumes that 0 is always a valid status code, since `check_returncode()` won't
