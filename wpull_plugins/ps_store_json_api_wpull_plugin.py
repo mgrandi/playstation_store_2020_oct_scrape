@@ -85,6 +85,7 @@ class PsStoreJsonApiWpullPlugin(WpullPlugin):
             self._get_json_search_query(UrlType.CHIHIRO, '''content_rating.url'''),
             self._get_json_search_query(UrlType.CHIHIRO, '''images[].url'''),
             self._get_json_search_query(UrlType.CHIHIRO, '''promomedia[].materials[].urls[].url'''),
+            self._get_json_search_query(UrlType.CHIHIRO, '''sku_links[].url'''),
             ]
 
         logger.debug("activate()")
