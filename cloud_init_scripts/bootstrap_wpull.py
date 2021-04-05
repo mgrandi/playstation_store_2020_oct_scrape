@@ -243,6 +243,36 @@ def main(args):
             f.write(iter_argument_line)
             f.write("\n")
 
+    if args.rsync_url:
+
+        cmd_list = [
+            "/usr/bin/rsync",
+            # "--progress",
+            "--itemize-changes",
+            "--recursive",
+            "--checksum",
+            "--partial",
+            "--verbose"]
+
+        # user@hostname:port/src_path
+        cmd_list.append(args.rsync_url)
+        # the destination path
+        cmd_list.append(output_folder)
+
+        logger.info("rsync command: `%s`", cmd_list)
+
+        try:
+
+            command_result = subprocess.run(cmd_list, check=True, capture_output=True)
+
+            logger.info("rsync command succeeded: \n\n`%s`", command_result.stdout.decode("utf-8"))
+
+
+        except Exception as e:
+
+            logger.exception("command failed, command result: `%s`", command_result)
+            raise e
+
     # now finally, run wpull
 
     wpull_argument_list = [
@@ -282,6 +312,10 @@ if __name__ == "__main__":
         dest="region_country",
         required=True,
         help="the second part of a region code, aka the `us` in `en-US`")
+    parser.add_argument("--rsync-url",
+        dest="rsync_url",
+        required=False,
+        help="if this is present, this is a media scrape, and we must rsync the files at rsync_url first before continuing")
     parser.add_argument("--verbose", action="store_true", help="increase logger verbosity")
 
     parsed_args = parser.parse_args()

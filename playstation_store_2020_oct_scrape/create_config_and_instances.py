@@ -28,6 +28,42 @@ DIGITAL_OCEAN_REGION_LIST = [
     "tor1"]
 
 
+def create_rsync_command_list(rsync_binary_path,, droplet, destination_folder):
+    '''
+    constructs the rsync command line list that we will pass to `subprocess.run()`
+
+    @param parsed_args - the `argaparse.Namespace` object we get from argparse
+    @param droplet - the `digitalocean.Droplet` object we rsyncing from
+    @param destination_folder - a `pathlib.Path` object of where we should put the files
+    @return a list of arguments to pass to `subprocess.run()`
+    '''
+
+    # common rsync arguments
+    cmd_list = [
+        str(parsed_args.rsync_binary),
+        # "--progress",
+        "--itemize-changes",
+        "--recursive",
+        "--checksum",
+        "--partial",
+        "--verbose"
+        ]
+
+    # if we are removing source files
+    if parsed_args.remove_source_files:
+        cmd_list.append("--remove-source-files")
+
+    # add any filters
+    if parsed_args.rsync_filters_list:
+        for iter_filter_str in parsed_args.rsync_filters_list:
+            filter_arg_list = ["--filter", iter_filter_str]
+            cmd_list.extend(filter_arg_list)
+
+    cmd_list.extend([
+        "{}@{}:{}".format(parsed_args.username, droplet.ip_address, parsed_args.droplet_source_folder),
+        "{}".format(destination_folder)
+    ])
+
 
 def run(args):
 
@@ -39,6 +75,7 @@ def run(args):
     is_dry_run = args.dry_run
     ssh_key_fingerprints_list = args.ssh_key_fingerprints
     droplet_tag_list = args.tag
+    maybe_rsync_url = args.rsync_url
 
 
     logger.info("starting at id `%s`", starting_machine_number)

@@ -189,6 +189,7 @@ def main():
         help="where to store the resulting files")
     create_config_and_instances_parser.add_argument("--tag", action="append",
         help="Any tags you want to add to your droplet. Can be specified multipme times", default=[])
+    create_config_and_instances_parser.add_argument("--rsync-url", dest="rsync_url", required=False, help="if doing a media scrape, specify a rsync url here")
     create_config_and_instances_parser.set_defaults(func_to_run=create_config_and_instances.run)
 
 
@@ -225,6 +226,7 @@ def main():
     wpull_urls_parser.add_argument("--region-lang", dest="region_lang", required=True, help="the first part of a region code, aka the `en` in `en-US`")
     wpull_urls_parser.add_argument("--region-country", dest="region_country", required=True, help="the second part of a region code, aka the `us` in `en-US`")
     wpull_urls_parser.set_defaults(func_to_run=generate_wpull_urls_from_content_ids.run)
+
 
     try:
 

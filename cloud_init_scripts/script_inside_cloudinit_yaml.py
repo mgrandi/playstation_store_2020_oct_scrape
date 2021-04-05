@@ -10,6 +10,7 @@ logger = logging.getLogger("script_inside_cloudinit_yaml.py")
 REGION_LANG = "___REGION_LANG___"
 REGION_COUNTRY = "___REGION_COUNTRY___"
 DOWNLOAD_URL = "___DOWNLOAD_URL___"
+RSYNC_URL = "__RSYNC_URL__"
 def download_script(url, path):
     logger.info("downloading `%s` to `%s`", url, path)
     response = urllib.request.urlopen(url)

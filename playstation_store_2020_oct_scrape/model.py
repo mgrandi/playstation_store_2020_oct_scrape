@@ -12,6 +12,8 @@ class CloudInitYamlArgs:
     main_account_username:str = attr.ib()
     main_account_password:str = attr.ib()
     download_url:str = attr.ib()
+    # if not None, then create a volume with X gb
+    volume_size_in_gb:typing.Optional[int] = attr.ib()
 
 @attr.s(auto_attribs=True, frozen=True, kw_only=True)
 class DropletCreationInfo:
