@@ -21,6 +21,7 @@ from playstation_store_2020_oct_scrape import create_config_and_instances
 from playstation_store_2020_oct_scrape import rsync_files_from_droplets
 from playstation_store_2020_oct_scrape import get_errored_items_from_log
 from playstation_store_2020_oct_scrape import generate_wpull_urls_from_content_ids
+from playstation_store_2020_oct_scrape import scrape_media
 
 
 class ArrowLoggingFormatter(logging.Formatter):
@@ -164,9 +165,6 @@ def main():
         help="where to save the list of media urls we discovered")
     warcio_parser.set_defaults(func_to_run=warcio_scrape.do_warcio_scrape)
 
-
-
-
     create_config_and_instances_parser = subparsers.add_parser("create_config_and_instances", help="given a list of content-id files , create the config and then create DO instances")
     create_config_and_instances_parser.add_argument("--digital-ocean-token", dest="digital_ocean_token", required=True,  help="the token to login to the DO API")
     create_config_and_instances_parser.add_argument("--machine-starting-id", dest="machine_starting_id",
@@ -225,6 +223,18 @@ def main():
     wpull_urls_parser.add_argument("--region-lang", dest="region_lang", required=True, help="the first part of a region code, aka the `en` in `en-US`")
     wpull_urls_parser.add_argument("--region-country", dest="region_country", required=True, help="the second part of a region code, aka the `us` in `en-US`")
     wpull_urls_parser.set_defaults(func_to_run=generate_wpull_urls_from_content_ids.run)
+
+    scrape_media_parser = subparsers.add_parser("scrape_media", help="scrapes media using a database that already did the JSON urls")
+    scrape_media_parser.add_argument("--region-lang", dest="region_lang", required=True, help="")
+    scrape_media_parser.add_argument("--region-country", dest="region_country", required=True, help="")
+    scrape_media_parser.add_argument("--rsync-url", dest="rsync_url", required=True, help="")
+    scrape_media_parser.add_argument("--parent-folder", dest="parent_folder", required=True, help="")
+    scrape_media_parser.add_argument("--db-name", dest="db_name", required=True, help="")
+    scrape_media_parser.add_argument("--wpull-path", dest="wpull_path", required=True, help="")
+    scrape_media_parser.add_argument("--rsync-password-file", dest="rsync_password_file", required=True, help="")
+
+    scrape_media_parser.set_defaults(func_to_run=scrape_media.run)
+
 
     try:
 
