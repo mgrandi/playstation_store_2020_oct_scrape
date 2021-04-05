@@ -98,7 +98,13 @@ def run(args):
 
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
-    c.execute("update queued_urls set status = 'todo' where status = 'skipped';")
+
+    # update all of the urls we added with the wpull plugin
+    # since we didn't have `--recursive` and `--span-hosts` on wpull when we ran just the JSON, they were added
+    # to the database as `skipped` and the status_code column is null because wpull never attempted to download it
+    # now lets set the status of those to be `todo` so wpull will download the stuff we added, but skip the stuff
+    # that wpull tried to download already (aka `status_code` is not null)
+    c.execute("update queued_urls set status = 'todo' where status = 'skipped' and status_code is null;")
     conn.commit()
     c.close()
     conn.close()
