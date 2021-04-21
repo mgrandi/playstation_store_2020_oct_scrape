@@ -30,7 +30,7 @@ def run(args):
     db_path = root_folder / arg_db_name
     output_file_path = root_folder / f"wpull_output_{arg_region_lang}-{arg_region_country}_{date_str}_with_media.log"
     warc_file_path = root_folder / f"wpull_warc_{arg_region_lang}-{arg_region_country}_{date_str}_with_media"
-    input_file_path = root_folder / f"wpull_input_{arg_region_lang}-{arg_region_country}_{date_str}_with_media.log"
+    input_file_path = root_folder / f"wpull_input_{arg_region_lang}-{arg_region_country}_{date_str}_with_media.txt"
 
     logger.info("writing input urls file to `%s`", input_file_path)
     with open(input_file_path, "w", encoding="utf-8") as f:
@@ -69,6 +69,8 @@ def run(args):
         f.write(f"{input_file_path}\n")
         f.write("--recursive\n")
         f.write("--span-hosts\n")
+        f.write("--connect-timeout\n")
+        f.write("10\n")
 
     # rsync database over
 
