@@ -20,7 +20,7 @@ def run(args):
 
     parent_folder_path = pathlib.Path(arg_parent_folder)
 
-    root_folder = parent_folder_path / f"{arg_region_lang}_{arg_region_country}_media_pex"
+    root_folder = parent_folder_path / f"{arg_region_lang}-{arg_region_country}_media_pex"
     root_folder.mkdir(exist_ok=True)
 
     wpull_args_file_path = root_folder / f"wpull_args_{arg_region_lang}-{arg_region_country}_with_media.txt"
